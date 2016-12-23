@@ -1,0 +1,163 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "configuration": {
+      "type": "object",
+      "metadata": {
+        "description": "Configuration for this resource"
+      }
+    },
+    "eventHubName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Event Hub"
+      }
+    },
+    "consumerGroupName": {
+      "type": "string",
+      "defaultValue": "$Default",
+      "metadata": {
+        "description": "Name of the Consumer Group"
+      }
+    },
+    "sku": {
+      "type": "string",
+      "defaultValue": "Standard",
+      "allowedValues": [
+        "Basic",
+        "Standard"
+      ],
+      "metadata": {
+        "description" : "Messaging tier of the Event Hub namespace"
+      }
+    },
+    "partitionCount": {
+      "type": "int",
+      "defaultValue": 2,
+      "minValue": 2,
+      "maxValue": 32,
+      "metadata": {
+        "description": "Number of partitions chosen"
+      }
+    },
+    "messageRetentionInDays": {
+      "type": "int",
+      "defaultValue": 1,
+      "minValue": 1,
+      "maxValue": 7,
+      "metadata": {
+        "description": "Number of days for retention"
+      }
+    }
+  },
+  "variables": {
+    "namespaceName": "[concat(parameters('configuration').projectName,'-eventhub-',parameters('configuration').environment, '-', resourceGroup().location)]",
+    "location": "[resourceGroup().location]",
+    "apiVersion": "2015-08-01",
+    "defaultSASKeyName": "RootManageSharedAccessKey",
+    "authRuleResourceId": "[resourceId('Microsoft.EventHub/namespaces/authorizationRules', variables('namespaceName'), variables('defaultSASKeyName'))]",
+    "sendSASKeyName": "SendKey",
+    "sendAuthRuleResourceId": "[resourceId('Microsoft.EventHub/namespaces/eventhubs/authorizationRules', variables('namespaceName'), parameters('eventHubName'), variables('sendSASKeyName'))]",
+    "listenSASKeyName": "ListenKey",
+    "listenAuthRuleResourceId": "[resourceId('Microsoft.EventHub/namespaces/eventhubs/authorizationRules', variables('namespaceName'), parameters('eventHubName'), variables('listenSASKeyName'))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[variables('namespaceName')]",
+      "type": "Microsoft.EventHub/Namespaces",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "[parameters('sku')]",
+        "tier": "[parameters('sku')]"
+      },
+      "tags": {
+        "projectName": "[parameters('configuration').projectName]",
+        "costCenter": "[parameters('configuration').costCenter]",
+        "businessUnit": "[parameters('configuration').businessUnit]",
+        "environment": "[parameters('configuration').environment]"
+      },
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "name": "[parameters('eventHubName')]",
+          "type": "EventHubs",
+          "dependsOn": [
+            "[concat('Microsoft.EventHub/namespaces/', variables('namespaceName'))]"
+          ],
+          "properties": {
+            "path": "[parameters('eventHubName')]",
+            "partitionCount": "[parameters('partitionCount')]",
+            "messageRetentionInDays": "[parameters('messageRetentionInDays')]"
+          },
+          "resources": [
+            {
+              "apiVersion": "2015-08-01",
+              "name": "[parameters('consumerGroupName')]",
+              "type": "ConsumerGroups",
+              "dependsOn": [
+                "[parameters('eventHubName')]"
+              ],
+              "properties": {
+
+              }
+            },
+            {
+              "apiVersion": "2015-08-01",
+              "name": "[variables('sendSASKeyName')]",
+              "type": "authorizationRules",
+              "dependsOn": [
+                "[parameters('eventHubName')]"
+              ],
+              "properties": {
+                "Rights": [
+                  "Send"
+                ]
+              }
+            },
+            {
+              "apiVersion": "2015-08-01",
+              "name": "[variables('listenSASKeyName')]",
+              "type": "authorizationRules",
+              "dependsOn": [
+                "[parameters('eventHubName')]"
+              ],
+              "properties": {
+                "Rights": [
+                  "Listen"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "NamespaceConnectionString": {
+      "type": "string",
+      "value": "[listkeys(variables('authRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
+    },
+    "NamespaceSharedAccessPolicyPrimaryKey": {
+      "type": "string",
+      "value": "[listkeys(variables('authRuleResourceId'), variables('apiVersion')).primaryKey]"
+    },
+    "EventHubSendOnlyConnectionString": {
+      "type": "string",
+      "value": "[listkeys(variables('sendAuthRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
+    },
+    "EventHubSendOnlyPolicyPrimaryKey": {
+      "type": "string",
+      "value": "[listkeys(variables('sendAuthRuleResourceId'), variables('apiVersion')).primaryKey]"
+    },
+    "EventHubListenOnlyConnectionString": {
+      "type": "string",
+      "value": "[listkeys(variables('listenAuthRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
+    },
+    "EventHubListenOnlyPolicyPrimaryKey": {
+      "type": "string",
+      "value": "[listkeys(variables('listenAuthRuleResourceId'), variables('apiVersion')).primaryKey]"
+    }
+  }
+}
