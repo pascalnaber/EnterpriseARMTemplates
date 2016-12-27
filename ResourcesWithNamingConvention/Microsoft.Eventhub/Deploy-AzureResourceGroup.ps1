@@ -4,9 +4,9 @@
 
 Param(
     [string] $ResourceGroupLocation = "West Europe",
-    [string] $ResourceGroupName = 'testd',
+    [string] $ResourceGroupName = 'test',
     [string] $TemplateFile = 'azuredeploy.json',
-    [string] $TemplateParametersFile = 'azuredeploy.Development.parameters.json'
+    [string] $TemplateParametersFile = 'azuredeploy.parameters.json'
 )
 
 Import-Module Azure -ErrorAction SilentlyContinue
