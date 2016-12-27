@@ -29,7 +29,7 @@
         "Standard"
       ],
       "metadata": {
-        "description" : "Messaging tier of the Event Hub namespace"
+        "description": "Messaging tier of the Event Hub namespace"
       }
     },
     "partitionCount": {
@@ -74,6 +74,7 @@
       },
       "tags": {
         "projectName": "[parameters('configuration').projectName]",
+        "owner": "[parameters('configuration').owner]",
         "costCenter": "[parameters('configuration').costCenter]",
         "businessUnit": "[parameters('configuration').businessUnit]",
         "environment": "[parameters('configuration').environment]"
@@ -99,19 +100,19 @@
               "dependsOn": [
                 "[parameters('eventHubName')]"
               ],
-              "properties": {
-
-              }
+              "properties": {}
             },
             {
               "apiVersion": "2015-08-01",
               "name": "[variables('sendSASKeyName')]",
               "type": "authorizationRules",
               "dependsOn": [
-                "[parameters('eventHubName')]"
+                "[parameters('eventHubName')]",
+                "[variables('listenSASKeyName')]"
               ],
+              "comments":"Dependency needed to other authorizationRule because of exception it cannot find this resourcekey",
               "properties": {
-                "Rights": [
+                "rights": [
                   "Send"
                 ]
               }
@@ -124,7 +125,7 @@
                 "[parameters('eventHubName')]"
               ],
               "properties": {
-                "Rights": [
+                "rights": [
                   "Listen"
                 ]
               }
@@ -135,6 +136,10 @@
     }
   ],
   "outputs": {
+    "namespaceName": {
+      "type": "string",
+      "value": "[variables('namespaceName')]"
+    },
     "NamespaceConnectionString": {
       "type": "string",
       "value": "[listkeys(variables('authRuleResourceId'), variables('apiVersion')).primaryConnectionString]"

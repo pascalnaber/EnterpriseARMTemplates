@@ -5,7 +5,7 @@
     "namespaceName": {
       "type": "string",
       "metadata": {
-        "description": "Name of the EventHub namespace"
+        "description": "Name of the EventHub namespace. Should be unique across Azure."
       }
     },
     "eventHubName": {
@@ -29,7 +29,7 @@
         "Standard"
       ],
       "metadata": {
-        "description" : "Messaging tier of the Event Hub namespace"
+        "description": "Messaging tier of the Event Hub namespace"
       }
     },
     "partitionCount": {
@@ -52,7 +52,7 @@
     }
   },
   "variables": {
-    "namespaceName": "[variables('namespaceName')]",
+    "namespaceName": "[parameters('namespaceName')]",
     "location": "[resourceGroup().location]",
     "apiVersion": "2015-08-01",
     "defaultSASKeyName": "RootManageSharedAccessKey",
@@ -93,17 +93,17 @@
               "dependsOn": [
                 "[parameters('eventHubName')]"
               ],
-              "properties": {
-
-              }
+              "properties": {}
             },
             {
               "apiVersion": "2015-08-01",
               "name": "[variables('sendSASKeyName')]",
               "type": "authorizationRules",
               "dependsOn": [
-                "[parameters('eventHubName')]"
+                "[parameters('eventHubName')]",
+                "[variables('listenSASKeyName')]"
               ],
+              "comments":"Dependency needed to other authorizationRule because of exception it cannot find this resourcekey",
               "properties": {
                 "Rights": [
                   "Send"
@@ -129,6 +129,10 @@
     }
   ],
   "outputs": {
+    "namespaceName": {
+      "type": "string",
+      "value": "[variables('namespaceName')]"
+    },
     "NamespaceConnectionString": {
       "type": "string",
       "value": "[listkeys(variables('authRuleResourceId'), variables('apiVersion')).primaryConnectionString]"

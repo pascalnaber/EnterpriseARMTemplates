@@ -4,7 +4,8 @@
   "parameters": {
     "configuration": {
       "value": {               
-          "projectName": "mynamespace",
+          "projectName": "projectx",
+          "owner": "myemail@mail.com",
           "costCenter": "AB1234",
           "businessUnit": "crm",
           "environment": "dev"        
