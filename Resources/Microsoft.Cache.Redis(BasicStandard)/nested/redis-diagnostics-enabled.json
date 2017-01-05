@@ -22,9 +22,6 @@
           "type": "Microsoft.Cache/redis/providers/diagnosticsettings",
           "name": "[concat(parameters('redisCacheName'), '/Microsoft.Insights/service')]",
           "location": "[resourceGroup().location]",
-          "dependsOn": [
-            "[concat('Microsoft.Cache/Redis/', parameters('redisCacheName'))]"
-          ],
           "properties": {
             "status": "On",
             "storageAccountName": "[parameters('existingDiagnosticsStorageAccountName')]"

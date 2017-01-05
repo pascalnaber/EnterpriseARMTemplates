@@ -1,0 +1,33 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "configuration": {
+      "value": {               
+          "projectName": "projectx",
+          "owner": "myemail@mail.com",
+          "costCenter": "AB1234",
+          "businessUnit": "crm",
+          "environment": "dev"        
+      }
+    },
+    "sku": {
+      "value": "Standard"
+    },
+    "redisCacheFamily": {
+      "value": "C"
+    },
+    "redisCacheCapacity": {
+      "value": 2
+    },
+    "enableNonSslPort": {
+      "value": true
+    },
+    "diagnostics":{
+      "value": "enabled"
+    },
+    "existingDiagnosticsStorageAccountName":{
+      "value": "icepaystorage"
+    }
+  }
+}
