@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json# ",
+  "contentVersion": "1.0.0.0",
+ "parameters": {
+    "redisCacheName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Azure Redis Cache."
+      }
+    },
+    "existingDiagnosticsStorageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of an existing storage account for diagnostics."
+      }
+    }
+  },
+  "variables": {},
+  "resources": [],
+  "outputs": {}
+}
