@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json# ",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "redisCacheName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Azure Redis Cache."
+      }
+    },
+    "existingDiagnosticsStorageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of an existing storage account for diagnostics."
+      }
+    }
+  },
+  "variables": {},
+  "resources": [
+        {
+          "apiVersion": "2015-07-01",
+          "type": "Microsoft.Cache/redis/providers/diagnosticsettings",
+          "name": "[concat(parameters('redisCacheName'), '/Microsoft.Insights/service')]",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Cache/Redis/', parameters('redisCacheName'))]"
+          ],
+          "properties": {
+            "status": "On",
+            "storageAccountName": "[parameters('existingDiagnosticsStorageAccountName')]"
+          }
+        }
+      ],
+  "outputs": {}
+}
