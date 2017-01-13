@@ -99,7 +99,7 @@
           "name": "[variables('sendSASKeyName')]",
           "type": "authorizationRules",
           "dependsOn": [
-                "[parameters('topicName')]"
+                "[concat(parameters('serviceBusNamespaceName'), '/',parameters('topicName'))]"
               ],
           "comments": "Dependency needed to other authorizationRule because of exception it cannot find this resourcekey",
           "properties": {
