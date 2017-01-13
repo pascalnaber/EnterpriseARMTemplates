@@ -99,8 +99,7 @@
       "name": "[concat(parameters('serviceBusNamespaceName'), '/',parameters('topicName'), '/', variables('sendSASKeyName'))]",
       "type": "Microsoft.ServiceBus/namespaces/topics/authorizationRules",
       "location": "[resourcegroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.ServiceBus/namespaces/', parameters('serviceBusNamespaceName'), '/topics/',parameters('topicName'))]"
+      "dependsOn": [        
       ],
       "properties": {
         "rights": [
