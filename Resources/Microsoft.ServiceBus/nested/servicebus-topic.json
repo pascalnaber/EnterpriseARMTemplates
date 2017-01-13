@@ -7,6 +7,9 @@
     },
     "serviceBusNamespaceName": {
       "type": "string"
+    },
+    "subscriptions":{
+      "type": "object"
     }
   },
   "variables": {},
@@ -22,6 +25,26 @@
         "enablePartitioning": true,
         "maxSizeInMegabytes": 5120,
         "requiresDuplicateDetection": false
+      }
+    },    
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[concat(parameters('serviceBusNamespaceName'),'/',parameters('topicName'),'/',parameters('subscriptions').subscriptions[copyIndex()].name)]",
+      "type": "Microsoft.ServiceBus/namespaces/topics/subscriptions",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "subscriptions-copy",
+        "count": "[length(parameters('subscriptions').subscriptions)]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.ServiceBus/namespaces/', parameters('serviceBusNamespaceName'), '/topics/', parameters('topicName'))]"
+      ],
+      "properties": {
+        "defaultMessageTimeToLive": "14.00:00:00",
+        "lockDuration": "00:00:30",
+        "maxDeliveryCount": 10,
+        "deadLetteringOnFilterEvaluationExceptions": true,
+        "deadLetteringOnMessageExpiration": true
       }
     }
   ],
