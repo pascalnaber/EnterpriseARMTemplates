@@ -1,18 +1,18 @@
 ﻿{
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "parameters": {    
+  "parameters": {
     "topicName": {
       "type": "string",
       "metadata": {
-         "description": "name of the topic."
-      }         
+        "description": "name of the topic."
+      }
     },
     "serviceBusNamespaceName": {
       "type": "string",
       "metadata": {
-         "description": "name of the existing namespace."
-      }         
+        "description": "name of the existing namespace."
+      }
     },
     "defaultMessageTimeToLive": {
       "type": "string",
@@ -25,29 +25,29 @@
       "type": "bool",
       "defaultValue": true,
       "metadata": {
-         "description": "value that indicates whether the queue to be partitioned across multiple message brokers is enabled."
-      }         
+        "description": "value that indicates whether the queue to be partitioned across multiple message brokers is enabled."
+      }
     },
     "maxSizeInMegabytes": {
       "type": "int",
       "defaultValue": 81920,
       "metadata": {
-         "description": "the maximum size of the queue in megabytes, which is the size of memory allocated for the queue."
-      }   
+        "description": "the maximum size of the queue in megabytes, which is the size of memory allocated for the queue."
+      }
     },
     "requiresDuplicateDetection": {
       "type": "bool",
       "defaultValue": false,
       "metadata": {
-         "description": "the value indicating if this queue requires duplicate detection."
+        "description": "the value indicating if this queue requires duplicate detection."
       }
     },
     "lockDuration": {
       "type": "string",
-      "defaultValue": "00:00:30" ,
+      "defaultValue": "00:00:30",
       "metadata": {
-         "description": "the maximum delivery count. A message is automatically deadlettered after this number of deliveries"
-      }     
+        "description": "the maximum delivery count. A message is automatically deadlettered after this number of deliveries"
+      }
     },
     "maxDeliveryCount": {
       "type": "int",
@@ -55,28 +55,31 @@
       "minValue": 1,
       "maxValue": 2000,
       "metadata": {
-         "description": "Number of maximum deliveries."
+        "description": "Number of maximum deliveries."
       }
-    },    
+    },
     "deadLetteringOnFilterEvaluationExceptions": {
       "type": "bool",
       "defaultValue": true,
       "metadata": {
-         "description": "Value that indicates if a subscription has dead letter support on Filter evaluation exceptions."
+        "description": "Value that indicates if a subscription has dead letter support on Filter evaluation exceptions."
       }
     },
-     "deadLetteringOnMessageExpiration": {
+    "deadLetteringOnMessageExpiration": {
       "type": "bool",
       "defaultValue": true,
       "metadata": {
-         "description": "Value that indicates if a subscription has dead letter support when a message expires."
+        "description": "Value that indicates if a subscription has dead letter support when a message expires."
       }
     },
-    "subscriptions":{
+    "subscriptions": {
       "type": "object"
     }
   },
-  "variables": {},
+  "variables": {
+    "listenSASKeyName": "ListenKey",
+    "sendSASKeyName": "SendKey",
+  },
   "resources": [
     {
       "apiVersion": "2015-08-01",
@@ -90,7 +93,7 @@
         "maxSizeInMegabytes": "[parameters('maxSizeInMegabytes')]",
         "requiresDuplicateDetection": "[parameters('requiresDuplicateDetection')]"
       }
-    },    
+    },
     {
       "apiVersion": "2015-08-01",
       "name": "[concat(parameters('serviceBusNamespaceName'),'/',parameters('topicName'),'/',parameters('subscriptions').subscriptions[copyIndex()].name)]",
@@ -109,14 +112,44 @@
         "maxDeliveryCount": "[parameters('maxDeliveryCount')]",
         "deadLetteringOnFilterEvaluationExceptions": "[parameters('deadLetteringOnFilterEvaluationExceptions')]",
         "deadLetteringOnMessageExpiration": "[parameters('deadLetteringOnMessageExpiration')]"
-      }
+      },
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "name": "[variables('sendSASKeyName')]",
+          "type": "authorizationRules",
+          "dependsOn": [
+            "[concat(parameters('serviceBusNamespaceName'),'/',parameters('topicName'),'/',parameters('subscriptions').subscriptions[copyIndex()].name)]",
+            "[variables('listenSASKeyName')]"
+          ],
+          "comments": "Dependency needed to other authorizationRule because of exception it cannot find this resourcekey",
+          "properties": {
+            "Rights": [
+              "Send"
+            ]
+          }
+        },
+        {
+          "apiVersion": "2015-08-01",
+          "name": "[variables('listenSASKeyName')]",
+          "type": "authorizationRules",
+          "dependsOn": [
+            "[concat(parameters('serviceBusNamespaceName'),'/',parameters('topicName'),'/',parameters('subscriptions').subscriptions[copyIndex()].name)]"
+          ],
+          "properties": {
+            "Rights": [
+              "Listen"
+            ]
+          }
+        }
+      ]
     }
   ],
   "outputs": {
     "Topic": {
       "type": "object",
       "value": {
-        "Name": "[parameters('topicName').name]"        
+        "Name": "[parameters('topicName').name]"
       }
     }
   }
