@@ -13,7 +13,7 @@
   "resources": [
     {
       "apiVersion": "2015-08-01",
-      "name": "[concat('sb/ns/', parameters('topicName'))]",
+      "name": "[concat(parameters('serviceBusNamespaceName'), '/topics/', parameters('topicName'))]",
       "type": "Microsoft.ServiceBus/namespaces/topics",
       "location": "[resourcegroup().location]",
       "properties": {
