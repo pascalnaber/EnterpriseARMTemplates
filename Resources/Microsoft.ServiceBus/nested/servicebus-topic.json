@@ -18,38 +18,38 @@
       "type": "string",
       "defaultValue": "14.00:00:00",
       "metadata": {
-        "description": "Default message time to live value. This is the duration after which the message expires, starting from when the message is sent to Service Bus. This is the default value used when TimeToLive is not set on a message itself."
+        "description": "(also used for subscription) Default message time to live value. This is the duration after which the message expires, starting from when the message is sent to Service Bus. This is the default value used when TimeToLive is not set on a message itself."
       }
     },
-    "enablePartitioning": {
+    "topicEnablePartitioning": {
       "type": "bool",
       "defaultValue": true,
       "metadata": {
         "description": "value that indicates whether the queue to be partitioned across multiple message brokers is enabled."
       }
     },
-    "maxSizeInMegabytes": {
+    "topicMaxSizeInMegabytes": {
       "type": "int",
       "defaultValue": 81920,
       "metadata": {
         "description": "the maximum size of the queue in megabytes, which is the size of memory allocated for the queue."
       }
     },
-    "requiresDuplicateDetection": {
+    "topicRequiresDuplicateDetection": {
       "type": "bool",
       "defaultValue": false,
       "metadata": {
         "description": "the value indicating if this queue requires duplicate detection."
       }
     },
-    "lockDuration": {
+    "subscriptionLockDuration": {
       "type": "string",
       "defaultValue": "00:00:30",
       "metadata": {
         "description": "the maximum delivery count. A message is automatically deadlettered after this number of deliveries"
       }
     },
-    "maxDeliveryCount": {
+    "subscriptionMaxDeliveryCount": {
       "type": "int",
       "defaultValue": 10,
       "minValue": 1,
@@ -58,14 +58,14 @@
         "description": "Number of maximum deliveries."
       }
     },
-    "deadLetteringOnFilterEvaluationExceptions": {
+    "subscriptionDeadLetteringOnFilterEvaluationExceptions": {
       "type": "bool",
       "defaultValue": true,
       "metadata": {
         "description": "Value that indicates if a subscription has dead letter support on Filter evaluation exceptions."
       }
     },
-    "deadLetteringOnMessageExpiration": {
+    "subscriptionDeadLetteringOnMessageExpiration": {
       "type": "bool",
       "defaultValue": true,
       "metadata": {
@@ -89,9 +89,9 @@
       "properties": {
         "path": "[parameters('topicName')]",
         "defaultMessageTimeToLive": "[parameters('defaultMessageTimeToLive')]",
-        "enablePartitioning": "[parameters('enablePartitioning')]",
-        "maxSizeInMegabytes": "[parameters('maxSizeInMegabytes')]",
-        "requiresDuplicateDetection": "[parameters('requiresDuplicateDetection')]"
+        "enablePartitioning": "[parameters('topicEnablePartitioning')]",
+        "maxSizeInMegabytes": "[parameters('topicMaxSizeInMegabytes')]",
+        "requiresDuplicateDetection": "[parameters('topicRequiresDuplicateDetection')]"
       }
     },
     {
@@ -108,18 +108,18 @@
       ],
       "properties": {
         "defaultMessageTimeToLive": "[parameters('defaultMessageTimeToLive')]",
-        "lockDuration": "[parameters('lockDuration')]",
-        "maxDeliveryCount": "[parameters('maxDeliveryCount')]",
-        "deadLetteringOnFilterEvaluationExceptions": "[parameters('deadLetteringOnFilterEvaluationExceptions')]",
-        "deadLetteringOnMessageExpiration": "[parameters('deadLetteringOnMessageExpiration')]"
+        "lockDuration": "[parameters('subscriptionLockDuration')]",
+        "maxDeliveryCount": "[parameters('subscriptionMaxDeliveryCount')]",
+        "deadLetteringOnFilterEvaluationExceptions": "[parameters('subscriptionDeadLetteringOnFilterEvaluationExceptions')]",
+        "deadLetteringOnMessageExpiration": "[parameters('subscriptionDeadLetteringOnMessageExpiration')]"
       },
-      "resources": [
+    },      
         {
           "apiVersion": "2015-08-01",
           "name": "[variables('sendSASKeyName')]",
           "type": "authorizationRules",
           "dependsOn": [
-            "[concat(parameters('serviceBusNamespaceName'),'/',parameters('topicName'),'/',parameters('subscriptions').subscriptions[copyIndex()].name)]",
+            "[concat(parameters('serviceBusNamespaceName'),'/',parameters('topicName'))]",
             "[variables('listenSASKeyName')]"
           ],
           "comments": "Dependency needed to other authorizationRule because of exception it cannot find this resourcekey",
@@ -134,7 +134,7 @@
           "name": "[variables('listenSASKeyName')]",
           "type": "authorizationRules",
           "dependsOn": [
-            "[concat(parameters('serviceBusNamespaceName'),'/',parameters('topicName'),'/',parameters('subscriptions').subscriptions[copyIndex()].name)]"
+            "[concat(parameters('serviceBusNamespaceName'),'/',parameters('topicName'))]"
           ],
           "properties": {
             "Rights": [
@@ -142,8 +142,6 @@
             ]
           }
         }
-      ]
-    }
   ],
   "outputs": {
     "Topic": {
