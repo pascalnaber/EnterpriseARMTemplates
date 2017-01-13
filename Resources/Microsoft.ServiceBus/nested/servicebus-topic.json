@@ -80,8 +80,8 @@
     "apiVersion": "2015-08-01",
     "sendSASKeyName": "sendpolicy",
     "sendAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'),parameters('topicName'), variables('sendSASKeyName'))]",
-    "listenSASKeyName": "listenpolicy",    
-    "listenAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'),parameters('topicName'), variables('listenSASKeyName'))]"
+    "listenSASKeyName": "listenpolicy",
+    "listenAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'),parameters('topicName'), variables('listenSASKeyName'))]",
   },
   "resources": [
     {
@@ -154,20 +154,18 @@
         "Name": "[parameters('topicName')]",
         "SendPolicy": {
           "Name": "[variables('sendSASKeyName')]",
-          "Key": "[listkeys(variables('sendAuthRuleResourceId'), variables('apiVersion')).primaryKey]",
-          "ConnectionString": "[listkeys(variables('sendAuthRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
+          "Key": "[listkeys(variables('sendAuthRuleResourceId'), '2015-08-01').primaryKey]",
+          "ConnectionString": "[listkeys(variables('sendAuthRuleResourceId'), '2015-08-01').primaryConnectionString]"
         },
         "ReceivePolicy": {
-          "Name": "[variables('listenSASKeyName')]",
-          "Key": "[listkeys(variables('listenAuthRuleResourceId'), variables('apiVersion')).primaryKey]",
-          "ConnectionString": "[listkeys(variables('listenAuthRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
-        },
-        "Subscriptions": {
-          "type": "object",
-          "value": {
-            "Name": "[parameters('subscriptions').subscriptions]"
-          }
+          "Name": "[variables('listenSASKeyName')]"         
         }
+      }
+    },
+    "Subscriptions": {
+      "type": "object",
+      "value": {
+        "Name": "[parameters('subscriptions').subscriptions]"
       }
     }
   }
