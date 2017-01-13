@@ -80,8 +80,8 @@
     "apiVersion": "2015-08-01",
     "sendSASKeyName": "sendpolicy",
     "sendAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'),parameters('topicName'), variables('sendSASKeyName'))]",
-    "listenSASKeyName": "listenpolicy",
-    "listenAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'), parameters('topicName'), variables('listenSASKeyName'))]"
+    "listenSASKeyName": "listenpolicy",    
+    "listenAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'),parameters('topicName'), variables('listenSASKeyName'))]"
   },
   "resources": [
     {
@@ -144,22 +144,29 @@
         "maxDeliveryCount": "[parameters('subscriptionMaxDeliveryCount')]",
         "deadLetteringOnFilterEvaluationExceptions": "[parameters('subscriptionDeadLetteringOnFilterEvaluationExceptions')]",
         "deadLetteringOnMessageExpiration": "[parameters('subscriptionDeadLetteringOnMessageExpiration')]"
-      },
+      }
     }
   ],
   "outputs": {
-   "topicName": {
+    "topic": {
       "type": "string",
-      "value": "[parameters('topicName')]"
-    },
-    "Subscriptions": {
-      "type": "object",
       "value": {
-        "Name": "[parameters('subscriptions').subscriptions]",
-        "TopicSenderKey": {
+        "Name": "[parameters('topicName')]",
+        "SendPolicy": {
           "Name": "[variables('sendSASKeyName')]",
-          "Key": "[listkeys(variables('sendAuthRuleResourceId'), '2015-08-01').primaryKey]",
-          "ConnectionString": "[listkeys(resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'),parameters('topicName'), variables('sendSASKeyName')), '2015-08-01').primaryConnectionString]"
+          "Key": "[listkeys(variables('sendAuthRuleResourceId'), variables('apiVersion')).primaryKey]",
+          "ConnectionString": "[listkeys(variables('sendAuthRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
+        },
+        "ReceivePolicy": {
+          "Name": "[variables('listenSASKeyName')]",
+          "Key": "[listkeys(variables('listenAuthRuleResourceId'), variables('apiVersion')).primaryKey]",
+          "ConnectionString": "[listkeys(variables('listenAuthRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
+        },
+        "Subscriptions": {
+          "type": "object",
+          "value": {
+            "Name": "[parameters('subscriptions').subscriptions]"
+          }
         }
       }
     }
