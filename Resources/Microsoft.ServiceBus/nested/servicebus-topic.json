@@ -155,13 +155,11 @@
     "Subscriptions": {
       "type": "object",
       "value": {
-        "Name": "parameters('subscriptions').subscriptions"
-      }
-    },
-    "TopicSendOnlyConnectionString": {
-      "type": "string",
-      "value": {
-        "Name": "[listkeys(variables('sendAuthRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
+        "Name": "parameters('subscriptions').subscriptions",
+        "TopicSenderKey": {
+          "Name": "[variables('sendSASKeyName')]",
+          "Key": "[listkeys(resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'),parameters('topicName'), variables('sendSASKeyName')), '2014-09-01').primaryKey]"
+        }
       }
     }
   }
