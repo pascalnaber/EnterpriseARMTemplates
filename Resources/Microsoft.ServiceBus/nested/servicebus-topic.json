@@ -113,35 +113,21 @@
         "deadLetteringOnFilterEvaluationExceptions": "[parameters('subscriptionDeadLetteringOnFilterEvaluationExceptions')]",
         "deadLetteringOnMessageExpiration": "[parameters('subscriptionDeadLetteringOnMessageExpiration')]"
       },
-    },      
-        {
-          "apiVersion": "2015-08-01",
-          "name": "[concat(parameters('serviceBusNamespaceName'), '/',parameters('topicName'), '/', variables('sendSASKeyName'))]",
-          "type": "Microsoft.ServiceBus/namespaces/topics/authorizationRules",
-          "dependsOn": [
-            "[concat(parameters('serviceBusNamespaceName'),'/',parameters('topicName'))]",
-            "[variables('listenSASKeyName')]"
-          ],
-          "comments": "Dependency needed to other authorizationRule because of exception it cannot find this resourcekey",
-          "properties": {
-            "Rights": [
-              "Send"
-            ]
-          }
-        },
-        {
-          "apiVersion": "2015-08-01",
-          "name": "[concat(parameters('serviceBusNamespaceName'), '/',parameters('topicName'), '/', variables('listenSASKeyName'))]",
-          "type": "Microsoft.ServiceBus/namespaces/topics/authorizationRules",
-          "dependsOn": [
-            "[concat(parameters('serviceBusNamespaceName'),'/',parameters('topicName'))]"
-          ],
-          "properties": {
-            "Rights": [
-              "Listen"
-            ]
-          }
-        }
+    },
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[concat(parameters('serviceBusNamespaceName'), '/topics/',parameters('topicName'), '/authorizationRules/', variables('sendSASKeyName'))]",
+      "type": "Microsoft.ServiceBus/namespaces/topics/authorizationRules",
+      "dependsOn": [
+        "[concat(parameters('serviceBusNamespaceName'),'/',parameters('topicName'))]"        
+      ],
+      "comments": "Dependency needed to other authorizationRule because of exception it cannot find this resourcekey",
+      "properties": {
+        "rights": [
+          "Send"
+        ]
+      }
+    }    
   ],
   "outputs": {
     "Topic": {
