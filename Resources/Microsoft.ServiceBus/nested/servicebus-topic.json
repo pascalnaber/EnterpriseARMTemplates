@@ -158,7 +158,7 @@
         "Name": "parameters('subscriptions').subscriptions",
         "TopicSenderKey": {
           "Name": "[variables('sendSASKeyName')]",
-          "Key": "[listkeys(resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'),parameters('topicName'), variables('sendSASKeyName')), '2014-09-01').primaryKey]"
+          "Key": "[listkeys(resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'),parameters('topicName'), variables('sendSASKeyName')), '2015-08-01').primaryKey]"
         }
       }
     }
