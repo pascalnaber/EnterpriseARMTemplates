@@ -92,7 +92,20 @@
         "enablePartitioning": "[parameters('topicEnablePartitioning')]",
         "maxSizeInMegabytes": "[parameters('topicMaxSizeInMegabytes')]",
         "requiresDuplicateDetection": "[parameters('topicRequiresDuplicateDetection')]"
-      }
+      },
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "name": "[variables('sendSASKeyName')]",
+          "type": "authorizationRules",
+          "comments": "Dependency needed to other authorizationRule because of exception it cannot find this resourcekey",
+          "properties": {
+            "rights": [
+              "Send"
+            ]
+          }
+        }
+      ]
     },
     {
       "apiVersion": "2015-08-01",
@@ -113,21 +126,7 @@
         "deadLetteringOnFilterEvaluationExceptions": "[parameters('subscriptionDeadLetteringOnFilterEvaluationExceptions')]",
         "deadLetteringOnMessageExpiration": "[parameters('subscriptionDeadLetteringOnMessageExpiration')]"
       },
-    },
-    {
-      "apiVersion": "2015-08-01",
-      "name": "[concat(parameters('serviceBusNamespaceName'), '/topics/',parameters('topicName'), '/authorizationRules/', variables('sendSASKeyName'))]",
-      "type": "Microsoft.ServiceBus/namespaces/topics/authorizationRules",
-      "dependsOn": [
-        "[concat(parameters('serviceBusNamespaceName'),'/',parameters('topicName'))]"        
-      ],
-      "comments": "Dependency needed to other authorizationRule because of exception it cannot find this resourcekey",
-      "properties": {
-        "rights": [
-          "Send"
-        ]
-      }
-    }    
+    }
   ],
   "outputs": {
     "Topic": {
