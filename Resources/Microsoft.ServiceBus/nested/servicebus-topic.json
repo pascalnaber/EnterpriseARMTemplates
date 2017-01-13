@@ -1,0 +1,32 @@
+﻿{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {    
+    "topicName": {
+      "type": "string"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[parameters('topicName')]",
+      "type": "topics",
+      "properties": {
+        "path": "[parameters('topicName')]",
+        "defaultMessageTimeToLive": "14.00:00:00",
+        "enablePartitioning": true,
+        "maxSizeInMegabytes": 5120,
+        "requiresDuplicateDetection": false
+      }
+    }
+  ],
+  "outputs": {
+    "Topic": {
+      "type": "object",
+      "value": {
+        "Name": "[parameters('topicName').name]"        
+      }
+    }
+  }
+}
