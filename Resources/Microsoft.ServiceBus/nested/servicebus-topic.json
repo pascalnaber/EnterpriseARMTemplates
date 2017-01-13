@@ -79,7 +79,7 @@
   "variables": {
     "apiVersion": "2015-08-01",
     "sendSASKeyName": "sendpolicy",
-    "sendAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'), parameters('topicName'), variables('sendSASKeyName'))]",
+    "sendAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'),parameters('topicName'), variables('sendSASKeyName'))]",
     "listenSASKeyName": "listenpolicy",
     "listenAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'), parameters('topicName'), variables('listenSASKeyName'))]"
   },
@@ -155,10 +155,11 @@
     "Subscriptions": {
       "type": "object",
       "value": {
-        "Name": "parameters('subscriptions').subscriptions",
+        "Name": "[parameters('subscriptions').subscriptions]",
         "TopicSenderKey": {
           "Name": "[variables('sendSASKeyName')]",
-          "Key": "[listkeys(resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'),parameters('topicName'), variables('sendSASKeyName')), '2015-08-01').primaryKey]"
+          "Key": "[listkeys(variables('sendAuthRuleResourceId'), '2015-08-01').primaryKey]",
+          "ConnectionString": "[listkeys(resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'),parameters('topicName'), variables('sendSASKeyName')), '2015-08-01').primaryConnectionString]"
         }
       }
     }
