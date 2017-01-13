@@ -11,7 +11,8 @@
     {
       "apiVersion": "2015-08-01",
       "name": "[parameters('topicName')]",
-      "type": "topics",
+      "type": "Microsoft.ServiceBus/namespaces/topics",
+      "location": "[resourcegroup().location]",
       "properties": {
         "path": "[parameters('topicName')]",
         "defaultMessageTimeToLive": "14.00:00:00",
