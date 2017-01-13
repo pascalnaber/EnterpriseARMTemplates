@@ -94,20 +94,7 @@
         "requiresDuplicateDetection": "[parameters('topicRequiresDuplicateDetection')]"
       },
       "resources": [
-        {
-          "apiVersion": "2015-08-01",
-          "name": "[variables('sendSASKeyName')]",
-          "type": "authorizationRules",
-          "dependsOn": [
-                "[concat(parameters('serviceBusNamespaceName'), '/',parameters('topicName'))]"
-              ],
-          "comments": "Dependency needed to other authorizationRule because of exception it cannot find this resourcekey",
-          "properties": {
-            "rights": [
-              "Send"
-            ]
-          }
-        }
+        
       ]
     },
     {
