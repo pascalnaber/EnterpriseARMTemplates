@@ -151,6 +151,18 @@
    "topicName": {
       "type": "string",
       "value": "[parameters('topicName')]"
+    },
+    "Subscriptions": {
+      "type": "object",
+      "value": {
+        "Name": "parameters('subscriptions').subscriptions"
+      }
+    },
+    "TopicSendOnlyConnectionString": {
+      "type": "string",
+      "value": {
+        "Name": "[listkeys(variables('sendAuthRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
+      }
     }
   }
 }
