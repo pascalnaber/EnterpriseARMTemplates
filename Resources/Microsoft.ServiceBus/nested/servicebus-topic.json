@@ -77,8 +77,7 @@
     }
   },
   "variables": {
-    "listenSASKeyName": "ListenKey",
-    "sendSASKeyName": "SendKey"
+    
   },
   "resources": [
     {
