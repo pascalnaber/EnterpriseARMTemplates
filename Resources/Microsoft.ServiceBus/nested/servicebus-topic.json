@@ -149,7 +149,7 @@
   ],
   "outputs": {
     "topic": {
-      "type": "string",
+      "type": "object",
       "value": {
         "Name": "[parameters('topicName')]",
         "SendPolicy": {
