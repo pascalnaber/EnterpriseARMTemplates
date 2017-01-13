@@ -162,11 +162,15 @@
     },
     "TopicSendOnlyConnectionString": {
       "type": "string",
-      "value": "[listkeys(variables('sendAuthRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
+      "value": {
+        "Name": "[listkeys(variables('sendAuthRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
+      }
     },
     "TopicListenOnlyConnectionString": {
       "type": "string",
-      "value": "[listkeys(variables('listenAuthRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
+      "value": {
+        "Name": "[listkeys(variables('listenAuthRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
+      }
     },
   }
 }
