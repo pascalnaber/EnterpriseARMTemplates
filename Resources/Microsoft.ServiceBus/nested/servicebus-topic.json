@@ -3,10 +3,74 @@
   "contentVersion": "1.0.0.0",
   "parameters": {    
     "topicName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+         "description": "name of the topic."
+      }         
     },
     "serviceBusNamespaceName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+         "description": "name of the existing namespace."
+      }         
+    },
+    "defaultMessageTimeToLive": {
+      "type": "string",
+      "defaultValue": "14.00:00:00",
+      "metadata": {
+        "description": "Default message time to live value. This is the duration after which the message expires, starting from when the message is sent to Service Bus. This is the default value used when TimeToLive is not set on a message itself."
+      }
+    },
+    "enablePartitioning": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+         "description": "value that indicates whether the queue to be partitioned across multiple message brokers is enabled."
+      }         
+    },
+    "maxSizeInMegabytes": {
+      "type": "int",
+      "defaultValue": 81920,
+      "metadata": {
+         "description": "the maximum size of the queue in megabytes, which is the size of memory allocated for the queue."
+      }   
+    },
+    "requiresDuplicateDetection": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+         "description": "the value indicating if this queue requires duplicate detection."
+      }
+    },
+    "lockDuration": {
+      "type": "string",
+      "defaultValue": "00:00:30" ,
+      "metadata": {
+         "description": "the maximum delivery count. A message is automatically deadlettered after this number of deliveries"
+      }     
+    },
+    "maxDeliveryCount": {
+      "type": "int",
+      "defaultValue": 10,
+      "minValue": 1,
+      "maxValue": 2000,
+      "metadata": {
+         "description": "Number of maximum deliveries."
+      }
+    },    
+    "deadLetteringOnFilterEvaluationExceptions": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+         "description": "Value that indicates if a subscription has dead letter support on Filter evaluation exceptions."
+      }
+    },
+     "deadLetteringOnMessageExpiration": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+         "description": "Value that indicates if a subscription has dead letter support when a message expires."
+      }
     },
     "subscriptions":{
       "type": "object"
@@ -21,10 +85,10 @@
       "location": "[resourcegroup().location]",
       "properties": {
         "path": "[parameters('topicName')]",
-        "defaultMessageTimeToLive": "14.00:00:00",
-        "enablePartitioning": true,
-        "maxSizeInMegabytes": 5120,
-        "requiresDuplicateDetection": false
+        "defaultMessageTimeToLive": "[parameters('defaultMessageTimeToLive')]",
+        "enablePartitioning": "[parameters('enablePartitioning')]",
+        "maxSizeInMegabytes": "[parameters('maxSizeInMegabytes')]",
+        "requiresDuplicateDetection": "[parameters('requiresDuplicateDetection')]"
       }
     },    
     {
@@ -40,11 +104,11 @@
         "[concat('Microsoft.ServiceBus/namespaces/', parameters('serviceBusNamespaceName'), '/topics/', parameters('topicName'))]"
       ],
       "properties": {
-        "defaultMessageTimeToLive": "14.00:00:00",
-        "lockDuration": "00:00:30",
-        "maxDeliveryCount": 10,
-        "deadLetteringOnFilterEvaluationExceptions": true,
-        "deadLetteringOnMessageExpiration": true
+        "defaultMessageTimeToLive": "[parameters('defaultMessageTimeToLive')]",
+        "lockDuration": "[parameters('lockDuration')]",
+        "maxDeliveryCount": "[parameters('maxDeliveryCount')]",
+        "deadLetteringOnFilterEvaluationExceptions": "[parameters('deadLetteringOnFilterEvaluationExceptions')]",
+        "deadLetteringOnMessageExpiration": "[parameters('deadLetteringOnMessageExpiration')]"
       }
     }
   ],
