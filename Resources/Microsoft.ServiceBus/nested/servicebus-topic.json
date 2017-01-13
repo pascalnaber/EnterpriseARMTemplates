@@ -92,22 +92,21 @@
         "maxSizeInMegabytes": "[parameters('topicMaxSizeInMegabytes')]",
         "requiresDuplicateDetection": "[parameters('topicRequiresDuplicateDetection')]"
       },
-      "resources": [
-        {
-          "apiVersion": "2015-08-01",
-          "name": "[variables('sendSASKeyName')]",
-          "type": "authorizationRules",
-          "dependsOn": [
-            "[concat(parameters('serviceBusNamespaceName'), '/',parameters('topicName'))]"
-          ],
-          "comments": "Dependency needed to other authorizationRule because of exception it cannot find this resourcekey",
-          "properties": {
-            "rights": [
-              "Send"
-            ]
-          }
-        }
-      ]
+      "resources": []
+    },
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[concat(parameters('serviceBusNamespaceName'), '/',parameters('topicName'), '/', variables('sendSASKeyName'))]",
+      "type": "Microsoft.ServiceBus/namespaces/topics/authorizationRules",
+      "location": "[resourcegroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.ServiceBus/namespaces/', parameters('serviceBusNamespaceName'), '/topics/',parameters('topicName'))]"
+      ],
+      "properties": {
+        "rights": [
+          "Send"
+        ]
+      }
     },
     {
       "apiVersion": "2015-08-01",
