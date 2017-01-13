@@ -116,7 +116,7 @@
     },      
         {
           "apiVersion": "2015-08-01",
-          "name": "[variables('sendSASKeyName')]",
+          "name": "[concat(parameters('serviceBusNamespaceName'), '/',parameters('topicName'), '/', variables('sendSASKeyName'))]",
           "type": "Microsoft.ServiceBus/namespaces/topics/authorizationRules",
           "dependsOn": [
             "[concat(parameters('serviceBusNamespaceName'),'/',parameters('topicName'))]",
@@ -131,7 +131,7 @@
         },
         {
           "apiVersion": "2015-08-01",
-          "name": "[variables('listenSASKeyName')]",
+          "name": "[concat(parameters('serviceBusNamespaceName'), '/',parameters('topicName'), '/', variables('listenSASKeyName'))]",
           "type": "Microsoft.ServiceBus/namespaces/topics/authorizationRules",
           "dependsOn": [
             "[concat(parameters('serviceBusNamespaceName'),'/',parameters('topicName'))]"
