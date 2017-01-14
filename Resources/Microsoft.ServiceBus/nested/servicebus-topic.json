@@ -160,14 +160,9 @@
         "ReceivePolicy": {
           "Name": "[variables('listenSASKeyName')]",
           "Key": "[listkeys(variables('listenAuthRuleResourceId'), '2015-08-01').primaryKey]",
-          "ConnectionString": "[listkeys(variables('listenAuthRuleResourceId'), '2015-08-01').primaryConnectionString]"    
-        }
-      }
-    },
-    "Subscriptions": {
-      "type": "object",
-      "value": {
-        "Name": "[parameters('subscriptions').subscriptions]"
+          "ConnectionString": "[listkeys(variables('listenAuthRuleResourceId'), '2015-08-01').primaryConnectionString]"
+        },
+        "Subscriptions": "[parameters('subscriptions').subscriptions]"
       }
     }
   }
