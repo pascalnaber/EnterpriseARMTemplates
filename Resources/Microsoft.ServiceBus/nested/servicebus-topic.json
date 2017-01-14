@@ -74,6 +74,10 @@
     },
     "subscriptions": {
       "type": "object"
+    },
+    "tmpTopics": {
+      "type": "array",
+      "defaultValue": []
     }
   },
   "variables": {
@@ -81,7 +85,7 @@
     "sendSASKeyName": "sendpolicy",
     "sendAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'),parameters('topicName'), variables('sendSASKeyName'))]",
     "listenSASKeyName": "listenpolicy",
-    "listenAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'),parameters('topicName'), variables('listenSASKeyName'))]",
+    "listenAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'),parameters('topicName'), variables('listenSASKeyName'))]"   
   },
   "resources": [
     {
@@ -146,8 +150,20 @@
         "deadLetteringOnMessageExpiration": "[parameters('subscriptionDeadLetteringOnMessageExpiration')]"
       }
     }
-  ],
+  ],     
   "outputs": {
+    "result":{
+        "type": "object",
+        "value": "[parameters('tmpTopics')]",
+    },    
+    "topics":{
+        "type": "object",
+        "value": [
+          {
+            "Name": "[parameters('topicName')]"
+          }
+        ],
+    },
     "topic": {
       "type": "object",
       "value": {
