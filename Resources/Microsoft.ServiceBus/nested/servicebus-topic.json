@@ -156,12 +156,11 @@
         "type": "object",
         "value": "[parameters('tmpTopics')]"
     },    
-    "topics":{
-        "type": "object",
-        "value": 
-          {
-            "Name": "[parameters('topicName')]"
-          }        
+    "topicx": {
+      "type": "object",
+      "value": {
+      "Name": "[parameters('topicName')]"
+      }  
     },
     "topic": {
       "type": "object",
