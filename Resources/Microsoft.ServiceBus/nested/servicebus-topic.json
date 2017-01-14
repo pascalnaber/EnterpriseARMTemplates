@@ -158,11 +158,10 @@
     },    
     "topics":{
         "type": "object",
-        "value": [
+        "value": 
           {
             "Name": "[parameters('topicName')]"
-          }
-        ]
+          }        
     },
     "topic": {
       "type": "object",
