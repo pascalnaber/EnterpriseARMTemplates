@@ -158,7 +158,9 @@
           "ConnectionString": "[listkeys(variables('sendAuthRuleResourceId'), '2015-08-01').primaryConnectionString]"
         },
         "ReceivePolicy": {
-          "Name": "[variables('listenSASKeyName')]"         
+          "Name": "[variables('listenSASKeyName')]",
+          "Key": "[listkeys(variables('listenAuthRuleResourceId'), '2015-08-01').primaryKey]",
+          "ConnectionString": "[listkeys(variables('listenAuthRuleResourceId'), '2015-08-01').primaryConnectionString]"    
         }
       }
     },
