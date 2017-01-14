@@ -154,7 +154,7 @@
   "outputs": {
     "result":{
         "type": "object",
-        "value": "[parameters('tmpTopics')]",
+        "value": "[parameters('tmpTopics')]"
     },    
     "topics":{
         "type": "object",
@@ -162,7 +162,7 @@
           {
             "Name": "[parameters('topicName')]"
           }
-        ],
+        ]
     },
     "topic": {
       "type": "object",
