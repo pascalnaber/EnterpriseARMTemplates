@@ -154,13 +154,13 @@
         "Name": "[parameters('topicName')]",
         "SendPolicy": {
           "Name": "[variables('sendSASKeyName')]",
-          "Key": "[listkeys(variables('sendAuthRuleResourceId'), '2015-08-01').primaryKey]",
-          "ConnectionString": "[listkeys(variables('sendAuthRuleResourceId'), '2015-08-01').primaryConnectionString]"
+          "Key": "[listkeys(variables('sendAuthRuleResourceId'), variables('apiVersion')).primaryKey]",
+          "ConnectionString": "[listkeys(variables('sendAuthRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
         },
         "ReceivePolicy": {
           "Name": "[variables('listenSASKeyName')]",
-          "Key": "[listkeys(variables('listenAuthRuleResourceId'), '2015-08-01').primaryKey]",
-          "ConnectionString": "[listkeys(variables('listenAuthRuleResourceId'), '2015-08-01').primaryConnectionString]"
+          "Key": "[listkeys(variables('listenAuthRuleResourceId'), variables('apiVersion')).primaryKey]",
+          "ConnectionString": "[listkeys(variables('listenAuthRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
         },
         "Subscriptions": "[parameters('subscriptions').subscriptions]"
       }
