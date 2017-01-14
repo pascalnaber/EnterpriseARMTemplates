@@ -85,7 +85,7 @@
     "sendSASKeyName": "sendpolicy",
     "sendAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'),parameters('topicName'), variables('sendSASKeyName'))]",
     "listenSASKeyName": "listenpolicy",
-    "listenAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'),parameters('topicName'), variables('listenSASKeyName'))]"   
+    "listenAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', parameters('serviceBusNamespaceName'),parameters('topicName'), variables('listenSASKeyName'))]"
   },
   "resources": [
     {
@@ -150,17 +150,19 @@
         "deadLetteringOnMessageExpiration": "[parameters('subscriptionDeadLetteringOnMessageExpiration')]"
       }
     }
-  ],     
+  ],
   "outputs": {
-    "result":{
-        "type": "object",
-        "value": "[parameters('tmpTopics')]"
-    },    
+    "result": {
+      "type": "object",
+      "value": "[parameters('tmpTopics')]"
+    },
     "topicx": {
       "type": "object",
-      "value": {
-      "Name": "[parameters('topicName')]"
-      }  
+      "value": [
+        {
+          "Name": "[parameters('topicName')]"
+        }
+      ]
     },
     "topic": {
       "type": "object",
