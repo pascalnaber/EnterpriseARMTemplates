@@ -1,0 +1,98 @@
+﻿{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "topicName": {
+      "type": "string",
+      "metadata": {
+        "description": "name of the topic."
+      }
+    },
+    "serviceBusNamespaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "name of the existing namespace."
+      }
+    },
+    "defaultMessageTimeToLive": {
+      "type": "string",
+      "defaultValue": "14.00:00:00",
+      "metadata": {
+        "description": "(also used for subscription) Default message time to live value. This is the duration after which the message expires, starting from when the message is sent to Service Bus. This is the default value used when TimeToLive is not set on a message itself."
+      }
+    },
+    "topicEnablePartitioning": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "value that indicates whether the queue to be partitioned across multiple message brokers is enabled."
+      }
+    },
+    "topicMaxSizeInMegabytes": {
+      "type": "int",
+      "defaultValue": 81920,
+      "metadata": {
+        "description": "the maximum size of the queue in megabytes, which is the size of memory allocated for the queue."
+      }
+    },
+    "topicRequiresDuplicateDetection": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "the value indicating if this queue requires duplicate detection."
+      }
+    },
+    "subscriptionLockDuration": {
+      "type": "string",
+      "defaultValue": "00:00:30",
+      "metadata": {
+        "description": "the maximum delivery count. A message is automatically deadlettered after this number of deliveries"
+      }
+    },
+    "subscriptionMaxDeliveryCount": {
+      "type": "int",
+      "defaultValue": 10,
+      "minValue": 1,
+      "maxValue": 2000,
+      "metadata": {
+        "description": "Number of maximum deliveries."
+      }
+    },
+    "subscriptionDeadLetteringOnFilterEvaluationExceptions": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Value that indicates if a subscription has dead letter support on Filter evaluation exceptions."
+      }
+    },
+    "subscriptionDeadLetteringOnMessageExpiration": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Value that indicates if a subscription has dead letter support when a message expires."
+      }
+    },
+    "subscriptions": {
+      "type": "object"
+    },
+    "currentTopics": {
+      "type": "array",
+      "defaultValue": []
+    }
+  },
+  "variables": {    
+  },
+  "resources": [
+  ],
+  "outputs": {
+    "currentTopics": {
+      "type": "array",
+      "value": "[parameters('currentTopics')]"
+    },
+    "newTopic": {
+      "type": "array",
+      "value": [        
+      ]
+    }
+  }
+}
