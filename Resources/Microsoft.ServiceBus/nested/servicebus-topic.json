@@ -158,13 +158,12 @@
     },
     "topicx": {
       "type": "array",
-      "value": {
-        "topics": [
+      "value": 
+         [
           {
             "name": "[parameters('topicName')]"
           }
-        ]
-      }
+        ]      
     },
     "topic": {
       "type": "object",
