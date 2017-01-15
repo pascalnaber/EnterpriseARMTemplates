@@ -153,11 +153,11 @@
   ],
   "outputs": {
     "result": {
-      "type": "object",
+      "type": "array",
       "value": "[parameters('tmpTopics')]"
     },
     "topicx": {
-      "type": "object",
+      "type": "array",
       "value": {
         "topics": [
           {
