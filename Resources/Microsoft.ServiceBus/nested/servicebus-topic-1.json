@@ -30,7 +30,10 @@
     },
     "topicMaxSizeInMegabytes": {
       "type": "int",
-      "defaultValue": 81920,
+      "defaultValue": 1024,
+      "allowedValues": [
+        1024,2048,3072,4096,5120,81920 
+      ],
       "metadata": {
         "description": "the maximum size of the queue in megabytes, which is the size of memory allocated for the queue."
       }
