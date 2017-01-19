@@ -1,0 +1,89 @@
+﻿{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "serviceBusNamespaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Azure Service Bus Namespace to create (Should be unique across Azure.)"
+      }
+    },
+    "queueName": {
+      "type": "string",
+      "metadata": {
+        "description": "name of the queue."
+      }
+    },
+   "topicName": {
+      "type": "string",
+      "metadata": {
+        "description": "name of the topic."
+      }
+    },
+    "subscriptions": {
+      "type": "array"
+    }
+  },  
+  "resources": [
+    {
+      "apiVersion": "2015-01-01",
+      "name": "Queue",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/pascalnaber/EnterpriseARMTemplates/master/Resources/Microsoft.ServiceBus(Queue)/azuredeploy.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "serviceBusNamespaceName": {
+            "value": "[parameters('serviceBusNamespaceName')]"
+          },
+          "queueName": {
+            "value": "[parameters('queueName')]"
+          }
+        }
+      }
+    },
+     {
+      "apiVersion": "2015-01-01",
+      "name": "Topic",
+      "type": "Microsoft.Resources/deployments",
+      "dependsOn": [
+        "Queue"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/pascalnaber/EnterpriseARMTemplates/master/Resources/Microsoft.ServiceBus(Topic)/azuredeploy.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "serviceBusNamespaceName": {
+            "value": "[parameters('serviceBusNamespaceName')]"
+          },
+          "topicName": {
+            "value": "[parameters('topicName')]"
+          },
+           "subscriptions": {
+            "value": "[parameters('subscriptions')]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+     "namespace": {
+      "type": "object",
+      "value": "[reference('Queue').outputs.namespace]"
+    },    
+    "queue": {
+      "type": "object",
+      "value": "[reference('Queue').outputs.queue]"
+    },    
+    "topic": {
+      "type": "object",
+      "value": "[reference('Topic').outputs.topic]"
+    }    
+  }
+}
