@@ -1,0 +1,213 @@
+﻿{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "serviceBusNamespaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Azure Service Bus Namespace to create (Should be unique across Azure.)"
+      }
+    },
+    "queueName": {
+      "type": "string",
+      "metadata": {
+        "description": "name of the queue."
+      }
+    },
+    "sku": {
+      "type": "string",
+      "allowedValues": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ],
+      "defaultValue": "Standard",
+      "metadata": {
+        "description": "The pricing tier of the Service Bus."
+      }
+    },
+    "messageTimeToLive": {
+      "type": "string",
+      "defaultValue": "14.00:00:00",
+      "metadata": {
+        "description": "Default message time to live value. This is the duration after which the message expires, starting from when the message is sent to Service Bus. This is the default value used when TimeToLive is not set on a message itself."
+      }
+    },
+    "enablePartitioning": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "value that indicates whether the queue to be partitioned across multiple message brokers is enabled."
+      }
+    },
+    "maxSizeInGigabytes": {
+      "type": "int",
+      "defaultValue": 1,
+      "allowedValues": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "metadata": {
+        "description": "the maximum size of the queue in gigabytes, which is the size of memory allocated for the queue. When partition is enabled this is times 16"
+      }
+    },
+    "requiresDuplicateDetection": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "the value indicating if this queue requires duplicate detection."
+      }
+    },
+    "requiresSession": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "a value that indicates whether the queue supports the concept of session."
+      }
+    },
+    "enableBatchedOperations": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Value that indicates whether server-side batched operations are enabled."
+      }
+    },
+    "isAnonymousAccessible": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Value that indicates whether the message is anonymous accessible."
+      }
+    },
+    "supportOrdering": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Value that indicates whether the topic supports ordering."
+      }
+    },
+    "enableExpress": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "a value that indicates whether Express Entities are enabled. An express queue holds a message in memory temporarily before writing it to persistent storage."
+      }
+    },
+    "deadLetteringOnMessageExpiration": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Value that indicates if a subscription has dead letter support when a message expires."
+      }
+    }
+  },
+  "variables": {
+    "maxSizeInMegabytes": "[mul(parameters('maxSizeInGigabytes'),1024)]",
+    "serviceBusNamespaceName": "[parameters('serviceBusNamespaceName')]",
+    "apiVersion": "2015-08-01",
+    "sendSASKeyName": "sendpolicy",
+    "sendAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/queues/authorizationRules', parameters('serviceBusNamespaceName'),parameters('queueName'), variables('sendSASKeyName'))]",
+    "listenSASKeyName": "listenpolicy",
+    "listenAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/queues/authorizationRules', parameters('serviceBusNamespaceName'),parameters('queueName'), variables('listenSASKeyName'))]",
+    "defaultSASKeyName": "RootManageSharedAccessKey",
+    "authRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/authorizationRules', parameters('serviceBusNamespaceName'), variables('defaultSASKeyName'))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[variables('serviceBusNamespaceName')]",
+      "type": "Microsoft.ServiceBus/namespaces",
+      "location": "[resourceGroup().location]",
+      "kind": "Messaging",
+      "sku": {
+        "name": "[parameters('sku')]",
+        "tier": "[parameters('sku')]"
+      },
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "name": "[parameters('queueName')]",
+          "type": "queues",
+          "location": "[resourcegroup().location]",
+          "dependsOn": [
+            "[variables('serviceBusNamespaceName')]"
+          ],
+          "properties": {
+            "path": "[parameters('queueName')]",
+            "maxSizeInMegabytes": "[variables('maxSizeInMegabytes')]",
+            "requiresDuplicateDetection": "[parameters('requiresDuplicateDetection')]",
+            "requiresSession": "[parameters('requiresSession')]",
+            "defaultMessageTimeToLive": "[parameters('messageTimeToLive')]",
+            "deadLetteringOnMessageExpiration": "[parameters('deadLetteringOnMessageExpiration')]",
+            "enableBatchedOperations": "[parameters('enableBatchedOperations')]",
+            "isAnonymousAccessible": "[parameters('isAnonymousAccessible')]",
+            "supportOrdering": "[parameters('supportOrdering')]",
+            "enablePartitioning": "[parameters('enablePartitioning')]",
+            "enableExpress": "[parameters('enableExpress')]"
+          },
+          "resources": [
+            {
+              "apiVersion": "2015-08-01",
+              "name": "[variables('listenSASKeyName')]",
+              "type": "authorizationRules",
+              "location": "[resourcegroup().location]",
+              "dependsOn": [
+                "[parameters('queueName')]",
+                "[variables('sendSASKeyName')]"
+              ],
+              "properties": {
+                "rights": [
+                  "Listen"
+                ]
+              }
+            },
+            {
+              "apiVersion": "2015-08-01",
+              "name": "[variables('sendSASKeyName')]",
+              "type": "authorizationRules",
+              "location": "[resourcegroup().location]",
+              "dependsOn": [
+                "[parameters('queueName')]"
+              ],
+              "properties": {
+                "rights": [
+                  "Send"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "namespace": {
+      "type": "object",
+      "value": {
+        "name": "[variables('serviceBusNamespaceName')]",
+        "policyName": "[variables('defaultSASKeyName')]",
+        "primaryKey": "[listkeys(variables('authRuleResourceId'), variables('apiVersion')).primaryKey]",
+        "connectionString": "[listkeys(variables('authRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
+      }
+    },
+    "queue": {
+      "type": "object",
+      "value": {
+        "name": "[parameters('queueName')]",
+        "sendPolicy": {
+          "name": "[variables('sendSASKeyName')]",
+          "primaryKey": "[listkeys(variables('sendAuthRuleResourceId'), variables('apiVersion')).primaryKey]",
+          "connectionString": "[listkeys(variables('sendAuthRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
+        },
+        "receivePolicy": {
+          "name": "[variables('listenSASKeyName')]",
+          "primaryKey": "[listkeys(variables('listenAuthRuleResourceId'), variables('apiVersion')).primaryKey]",
+          "connectionString": "[listkeys(variables('listenAuthRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
+        }
+      }
+    }
+  }
+}
