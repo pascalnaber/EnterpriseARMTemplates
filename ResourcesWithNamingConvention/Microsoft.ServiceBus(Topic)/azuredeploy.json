@@ -1,0 +1,319 @@
+﻿{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "configuration": {
+      "type": "object",
+      "metadata": {
+        "description": "Configuration for this resource"
+      }
+    },
+    "topicName": {
+      "type": "string",
+      "metadata": {
+        "description": "name of the topic."
+      }
+    },
+    "subscriptions": {
+      "type": "array"
+    },
+    "sku": {
+      "type": "string",
+      "allowedValues": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ],
+      "defaultValue": "Standard",
+      "metadata": {
+        "description": "The pricing tier of the Service Bus."
+      }
+    },
+    "defaultMessageTimeToLive": {
+      "type": "string",
+      "defaultValue": "14.00:00:00",
+      "metadata": {
+        "description": "(also used for subscription) Default message time to live value. This is the duration after which the message expires, starting from when the message is sent to Service Bus. This is the default value used when TimeToLive is not set on a message itself."
+      }
+    },
+    "duplicateDetectionHistoryTimeWindow": {
+      "type": "string",
+      "defaultValue": "00:10:00",
+      "metadata": {
+        "description": "TimeSpan structure that defines the duration of the duplicate detection history. The default value is 10 minutes."
+      }
+    },
+    "enablePartitioning": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "value that indicates whether the queue to be partitioned across multiple message brokers is enabled."
+      }
+    },
+    "maxSizeInGigabytes": {
+      "type": "int",
+      "defaultValue": 1,
+      "allowedValues": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "metadata": {
+        "description": "the maximum size of the queue in megabytes, which is the size of memory allocated for the queue. When partition is enabled this is times 16"
+      }
+    },
+    "requiresDuplicateDetection": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "the value indicating if this queue requires duplicate detection."
+      }
+    },
+    "enableBatchedOperations": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Value that indicates whether server-side batched operations are enabled."
+      }
+    },
+    "isAnonymousAccessible": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Value that indicates whether the message is anonymous accessible."
+      }
+    },
+    "enableExpress": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "a value that indicates whether Express Entities are enabled. An express queue holds a message in memory temporarily before writing it to persistent storage."
+      }
+    },
+    "enableSubscriptionPartitioning": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Value that indicates whether partitioning is enabled or disabled."
+      }
+    },
+    "filteringMessagesBeforePublishing": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Whether messages should be filtered before publishing."
+      }
+    },
+    "supportOrdering": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Value that indicates whether the topic supports ordering."
+      }
+    },
+    "subscriptionLockDuration": {
+      "type": "string",
+      "defaultValue": "00:00:30",
+      "metadata": {
+        "description": "the maximum delivery count. A message is automatically deadlettered after this number of deliveries"
+      }
+    },
+    "subscriptionMaxDeliveryCount": {
+      "type": "int",
+      "defaultValue": 10,
+      "minValue": 1,
+      "maxValue": 2000,
+      "metadata": {
+        "description": "Number of maximum deliveries."
+      }
+    },
+    "subscriptionDeadLetteringOnFilterEvaluationExceptions": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Value that indicates if a subscription has dead letter support on Filter evaluation exceptions."
+      }
+    },
+    "subscriptionDeadLetteringOnMessageExpiration": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Value that indicates if a subscription has dead letter support when a message expires."
+      }
+    },
+    "subscriptionRequiresSession": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "a value that indicates whether the queue supports the concept of session."
+      }
+    },
+    "subscriptionEnableBatchedOperations": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Value that indicates whether server-side batched operations are enabled."
+      }
+    },
+  },
+  "variables": {
+    "maxSizeInMegabytes": "[mul(parameters('maxSizeInGigabytes'),1024)]",
+    "serviceBusNamespaceName": "[concat(parameters('configuration').projectName,'-servicebus-',parameters('configuration').environment, '-', resourceGroup().location)]",
+    "apiVersion": "2015-08-01",
+    "sendSASKeyName": "sendpolicy",
+    "sendAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', variables('serviceBusNamespaceName'),parameters('topicName'), variables('sendSASKeyName'))]",
+    "listenSASKeyName": "listenpolicy",
+    "listenAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/topics/authorizationRules', variables('serviceBusNamespaceName'),parameters('topicName'), variables('listenSASKeyName'))]",
+    "defaultSASKeyName": "RootManageSharedAccessKey",
+    "authRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/authorizationRules', variables('serviceBusNamespaceName'), variables('defaultSASKeyName'))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[variables('serviceBusNamespaceName')]",
+      "type": "Microsoft.ServiceBus/namespaces",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "projectName": "[parameters('configuration').projectName]",
+        "owner": "[parameters('configuration').owner]",
+        "costCenter": "[parameters('configuration').costCenter]",
+        "businessUnit": "[parameters('configuration').businessUnit]",
+        "environment": "[parameters('configuration').environment]"
+      },
+      "kind": "Messaging",
+      "sku": {
+        "name": "[parameters('sku')]",
+        "tier": "[parameters('sku')]"
+      },
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "name": "[parameters('topicName')]",
+          "type": "topics",
+          "location": "[resourcegroup().location]",
+          "tags": {
+            "projectName": "[parameters('configuration').projectName]",
+            "owner": "[parameters('configuration').owner]",
+            "costCenter": "[parameters('configuration').costCenter]",
+            "businessUnit": "[parameters('configuration').businessUnit]",
+            "environment": "[parameters('configuration').environment]"
+          },
+          "dependsOn": [
+            "[concat('Microsoft.ServiceBus/namespaces/', variables('serviceBusNamespaceName'))]"
+          ],
+          "properties": {
+            "path": "[parameters('topicName')]",
+            "defaultMessageTimeToLive": "[parameters('defaultMessageTimeToLive')]",
+            "enablePartitioning": "[parameters('enablePartitioning')]",
+            "maxSizeInMegabytes": "[variables('maxSizeInMegabytes')]",
+            "requiresDuplicateDetection": "[parameters('requiresDuplicateDetection')]",
+            "duplicateDetectionHistoryTimeWindow ": "[parameters('duplicateDetectionHistoryTimeWindow')]",
+            "enableBatchedOperations": "[parameters('enableBatchedOperations')]",
+            "enableExpress": "[parameters('enableExpress')]",
+            "enableSubscriptionPartitioning": "[parameters('enableSubscriptionPartitioning')]",
+            "filteringMessagesBeforePublishing": "[parameters('filteringMessagesBeforePublishing')]",
+            "isAnonymousAccessible": "[parameters('isAnonymousAccessible')]",
+            "supportOrdering": "[parameters('supportOrdering')]"
+          },
+          "resources": [
+            {
+              "apiVersion": "2015-08-01",
+              "name": "[variables('listenSASKeyName')]",
+              "type": "authorizationRules",
+              "location": "[resourcegroup().location]",
+              "tags": {
+                "projectName": "[parameters('configuration').projectName]",
+                "owner": "[parameters('configuration').owner]",
+                "costCenter": "[parameters('configuration').costCenter]",
+                "businessUnit": "[parameters('configuration').businessUnit]",
+                "environment": "[parameters('configuration').environment]"
+              },
+              "dependsOn": [
+                "[parameters('topicName')]",
+                "[variables('sendSASKeyName')]"
+              ],
+              "properties": {
+                "rights": [
+                  "Listen"
+                ]
+              }
+            },
+            {
+              "apiVersion": "2015-08-01",
+              "name": "[variables('sendSASKeyName')]",
+              "type": "authorizationRules",
+              "location": "[resourcegroup().location]",
+              "tags": {
+                "projectName": "[parameters('configuration').projectName]",
+                "owner": "[parameters('configuration').owner]",
+                "costCenter": "[parameters('configuration').costCenter]",
+                "businessUnit": "[parameters('configuration').businessUnit]",
+                "environment": "[parameters('configuration').environment]"
+              },
+              "dependsOn": [
+                "[parameters('topicName')]"
+              ],
+              "properties": {
+                "rights": [
+                  "Send"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[concat(parameters('serviceBusNamespaceName'),'/',parameters('topicName'),'/',parameters('subscriptions')[copyIndex()].name)]",
+      "type": "Microsoft.ServiceBus/namespaces/topics/subscriptions",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "subscriptions-copy",
+        "count": "[length(parameters('subscriptions'))]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.ServiceBus/namespaces/', parameters('serviceBusNamespaceName'), '/topics/', parameters('topicName'))]"
+      ],
+      "properties": {
+        "defaultMessageTimeToLive": "[parameters('defaultMessageTimeToLive')]",
+        "lockDuration": "[parameters('subscriptionLockDuration')]",
+        "maxDeliveryCount": "[parameters('subscriptionMaxDeliveryCount')]",
+        "deadLetteringOnFilterEvaluationExceptions": "[parameters('subscriptionDeadLetteringOnFilterEvaluationExceptions')]",
+        "deadLetteringOnMessageExpiration": "[parameters('subscriptionDeadLetteringOnMessageExpiration')]",
+        "enableBatchedOperations": "[parameters('subscriptionEnableBatchedOperations')]",
+        "requiresSession": "[parameters('subscriptionRequiresSession')]"
+      }
+    }
+  ],
+  "outputs": {
+    "namespace": {
+      "type": "object",
+      "value": {
+        "name": "[variables('serviceBusNamespaceName')]",
+        "policyName": "[variables('defaultSASKeyName')]",
+        "primaryKey": "[listkeys(variables('authRuleResourceId'), variables('apiVersion')).primaryKey]",
+        "connectionString": "[listkeys(variables('authRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
+      }
+    },
+    "topic": {
+      "type": "object",
+      "value": {
+        "name": "[parameters('topicName')]",
+        "sendPolicy": {
+          "name": "[variables('sendSASKeyName')]",
+          "key": "[listkeys(variables('sendAuthRuleResourceId'), variables('apiVersion')).primaryKey]",
+          "connectionString": "[listkeys(variables('sendAuthRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
+        },
+        "receivePolicy": {
+          "name": "[variables('listenSASKeyName')]",
+          "key": "[listkeys(variables('listenAuthRuleResourceId'), variables('apiVersion')).primaryKey]",
+          "connectionString": "[listkeys(variables('listenAuthRuleResourceId'), variables('apiVersion')).primaryConnectionString]"
+        },
+        "subscriptions": "[parameters('subscriptions')]"
+      }
+    }
+  }
+}
