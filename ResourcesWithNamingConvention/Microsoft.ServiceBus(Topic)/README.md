@@ -11,6 +11,11 @@ This template deploys an Azure Service Bus with Topic. The template decides the 
 
 `Tags: Service Bus, Topic, Subscription`
 
+## remarks
+
+- If you want to deploy a service bus topic together with the service bus queue, 
+  take a look at [this deployment sample](https://github.com/pascalnaber/EnterpriseARMTemplates/tree/master/DeploymentSamples/ServiceBusQueueAndTopicWithSubscriptions) how to do this. 
+
 ## supports
 
 Besides the standard configuration
