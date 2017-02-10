@@ -107,12 +107,25 @@
       "metadata": {
         "description": "Only needed when Storage is enabled. Name of an existing storage account for diagnostics. Must be in the same region as the Redis Cache."
       }
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/pascalnaber/EnterpriseARMTemplates/master/Resources/Microsoft.Cache.Redis(BasicStandard)/nested/",
+      "metadata": {
+        "description": "The base URI where artifacts required by this template are located. When the template is deployed using the Visual Studio PowerShell scripts, a private location in the subscription will be used and this value will be automatically generated."
+      }
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The SAS token to access the storage account"
+      }
     }
   },
   "variables": {
-    "redisCacheName": "[parameters('redisCacheName')]",
-    "templateBaseUrl": "https://raw.githubusercontent.com/pascalnaber/EnterpriseARMTemplates/master/Resources/Microsoft.Cache.Redis(BasicStandard)/nested/",
-    "diagnosticsTemplate": "[concat(variables('templateBaseUrl'), 'redis-diagnostics-',parameters('diagnostics'),'.json')]"
+    "redisCacheName": "[parameters('redisCacheName')]",    
+    "diagnosticsTemplate": "[concat(parameters('_artifactsLocation'), 'redis-diagnostics-',parameters('diagnostics'),'.json', parameters('_artifactsLocationSasToken'))]"
   },
   "resources": [
     {
