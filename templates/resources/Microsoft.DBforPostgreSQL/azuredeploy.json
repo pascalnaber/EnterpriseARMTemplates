@@ -1,0 +1,168 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "databaseName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of database"
+            }
+        },
+        "metadata": {
+            "type": "object",
+            "metadata": {
+                "description": "Metadata for this resource"
+            }
+        },
+        "administratorLogin": {
+            "type": "string",
+            "minLength": 1,
+            "metadata": {
+                "description": "Database administrator login name"
+            }
+        },
+        "administratorLoginPassword": {
+            "type": "securestring",
+            "minLength": 8,
+            "maxLength": 128,
+            "metadata": {
+                "description": "Database administrator password"
+            }
+        },
+        "databaseDTU": {
+            "type": "int",
+            "allowedValues": [
+                50,
+                100
+            ],
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Azure database for PostgreSQL pricing tier"
+            }
+        },
+        "databaseSkuName": {
+            "type": "string",
+            "allowedValues": [
+                "PostgreSQLB100",
+                "PostgreSQLB50"
+            ],
+            "defaultValue": "PostgreSQLB100",
+            "metadata": {
+                "description": "Azure database for PostgreSQL sku name : PostgreSQLB100 (Basic 100 DTU tier) and PostgreSQLB50 (Basic 50 DTU tier)"
+            }
+        },
+        "databaseSkuSizeMB": {
+            "type": "int",
+            "allowedValues": [
+                128000,
+                102400,
+                51200
+            ],
+            "defaultValue": 51200,
+            "metadata": {
+                "description": "Azure database for PostgreSQL Sku Size "
+            }
+        },
+        "databaseSkuTier": {
+            "type": "string",
+            "allowedValues": [
+                "Basic",
+                "Standard"
+            ],
+            "defaultValue": "Basic",
+            "metadata": {
+                "description": "Azure database for PostgreSQL pricing tier"
+            }
+        },
+        "postgresqlVersion": {
+            "type": "string",
+            "allowedValues": [
+                "9.5",
+                "9.6"
+            ],
+            "defaultValue": "9.6",
+            "metadata": {
+                "description": "PostgreSQL version"
+            }
+        },
+        "databases": {
+            "type": "array"
+        },
+        "firewallRules": {
+            "type": "array"
+        }
+    },
+    "variables": {
+        "databaseName": "[parameters('databaseName')]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2017-04-30-preview",
+            "type": "Microsoft.DBforPostgreSQL/servers",
+            "kind": "",
+            "location": "[resourceGroup().location]",
+            "name": "[variables('databaseName')]",
+            "tags": {
+                "department": "[parameters('metadata').department]",
+                "projectName": "[parameters('metadata').projectName]",
+                "owner": "[parameters('metadata').owner]",
+                "environment": "[parameters('metadata').environment]"
+            },
+            "properties": {
+                "version": "[parameters('postgresqlVersion')]",
+                "administratorLogin": "[parameters('administratorLogin')]",
+                "administratorLoginPassword": "[parameters('administratorLoginPassword')]",
+                "storageMB": "[parameters('databaseSkuSizeMB')]"
+            },
+            "sku": {
+                "name": "[parameters('databaseSkuName')]",
+                "tier": "[parameters('databaseSkuTier')]",
+                "capacity": "[parameters('databaseDTU')]",
+                "size": "[parameters('databaseSkuSizeMB')]",
+                "family": "SkuFamily"
+            }
+        },
+        {
+            "type": "Microsoft.DBforPostgreSQL/servers/databases",
+            "name": "[concat(variables('databaseName'), '/', parameters('databases')[copyIndex()])]",
+            "apiVersion": "2017-04-30-preview",
+            "properties": {
+                "charset": "utf8",
+                "collation": "English_United States.1252"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.DBforPostgreSQL/servers', variables('databaseName'))]"
+            ],
+            "copy": {
+                "name": "databasesCopy",
+                "count": "[length(parameters('databases'))]"
+            }
+        },
+        {
+            "type": "Microsoft.DBforPostgreSQL/servers/firewallrules",
+            "name": "[concat(variables('databaseName'), '/', parameters('firewallRules')[copyIndex()].name)]",
+            "apiVersion": "2017-04-30-preview",
+            "properties": {
+                "startIpAddress": "[parameters('firewallRules')[copyIndex()].ipAddress]",
+                "endIpAddress": "[parameters('firewallRules')[copyIndex()].ipAddress]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.DBforPostgreSQL/servers', variables('databaseName'))]"
+            ],
+            "copy": {
+                "name": "firewallRulesCopy",
+                "count": "[length(parameters('firewallRules'))]"
+            }
+        }
+    ],
+    "outputs": {
+        "databaseName": {
+            "type": "string",
+            "value": "[variables('databaseName')]"
+        },
+        "PythonConnectionString": {
+            "type": "string",
+            "value": "[concat('dbname=''', variables('databaseName'),''' user=''', parameters('administratorLogin'),'@', variables('databaseName'),''' host=''', variables('databaseName'), '.postgres.database.azure.com'' password=''your_password'' port=''5432'' sslmode=true')]"
+        }
+    }
+}

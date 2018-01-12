@@ -1,0 +1,52 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "clusterName": {
+            "value": "mytestcluster"
+        },
+        "metadata": {
+            "value": {
+                "department": "IT",
+                "company": "Xpirit",
+                "projectName": "epicshit",
+                "owner": "pnaber@xpirit.com",
+                "environment": "dev"
+            }
+        },
+        "dnsPrefix": {
+            "value": "test"
+        },
+        "kubernetesVersion": {
+            "value": "1.8.1"
+        },
+        "linuxAdminUsername": {
+            "value": "azureuser"
+        },
+        "sshRSAPublicKey": {
+            "reference": {
+                "keyVault": {
+                    "id": "/subscriptions/YOURSUBSCRIPTIONGUID/resourceGroups/KEYVAULTRESOURCEGROUP/providers/Microsoft.KeyVault/vaults/KEYVAULTNAME"
+                },
+                "secretName": "sshkey-public"
+            }
+        },
+        "servicePrincipalClientId": {
+            "value": "d6931de4-394b-4302-9130-bf03a9050e91"
+        },
+        "servicePrincipalClientSecret": {
+            "reference": {
+                "keyVault": {
+                    "id": "/subscriptions/YOURSUBSCRIPTIONGUID/resourceGroups/KEYVAULTRESOURCEGROUP/providers/Microsoft.KeyVault/vaults/KEYVAULTNAME"
+                },
+                "secretName": "serviceprincipal-password"
+            }
+        },
+        "agentCount": {
+            "value": 2
+        },
+        "agentVMSize": {
+            "value": "Standard_D2_v2"
+        }
+    }
+}

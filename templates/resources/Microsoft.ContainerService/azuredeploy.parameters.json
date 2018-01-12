@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "containerServiceName": {
+      "value": "mycluster"
+    },
+    "masterDnsNamePrefix": {
+      "value": "mstr"
+    },
+    "agentDnsNamePrefix": {
+      "value": "agnt"
+    },
+    "agentCount": {
+      "value": 2
+    },
+    "agentVMSize": {
+      "value": "Standard_DS2"
+    },
+    "linuxAdminUsername": {
+      "value": "admin"
+    },   
+    "orchestratorType": {
+      "value": "Kubernetes"
+    },
+    "masterCount": {
+      "value": 1
+    },
+    "sshRSAPublicKey": {
+      "value": "ssh-rsa AAAABBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
+    },
+    "servicePrincipalClientId": {
+      "value": "123456-7efa-4523-9736-123456789012"
+    },
+    "servicePrincipalClientSecret": {
+      "value": "P@$$w0rd"
+    }
+  }
+}

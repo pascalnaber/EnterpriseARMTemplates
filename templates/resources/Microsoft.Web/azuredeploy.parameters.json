@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {   
+    "hostingPlanName": {
+      "value": "myhostingplan"
+    }, 
+    "webSiteName": {
+      "value": "mywebsite"
+    },
+    "metadata": {
+      "value": {
+        "department": "IT",
+        "company": "Xpirit",
+        "projectName": "epicshit",
+        "owner": "pnaber@xpirit.com",
+        "environment": "dev"
+      }
+    },
+    "domainName": {
+      "value": "mywebsite.xpirit.com"
+    },
+    "skuName": {
+      "value": "S1"
+    },
+    "skuCapacity": {
+      "value": 1
+    },
+    "appSettings": {
+      "value": [       
+        {
+          "name": "webpages:Version",
+          "value": "3.0.0.0"
+        },
+        {
+          "name": "webpages:Enabled",
+          "value": "false"
+        },
+        {
+          "name": "ClientValidationEnabled",
+          "value": "true"
+        },
+        {
+          "name": "UnobtrusiveJavaScriptEnabled",
+          "value": "true"
+        },
+        {
+          "name": "MySetting",
+          "value": "SettingValue"
+        }
+      ]
+    }
+  }
+}

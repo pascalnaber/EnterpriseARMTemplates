@@ -1,0 +1,52 @@
+﻿{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "applicationInsightsName": {
+      "type": "string",
+      "metadata": {
+        "description": "Full name of the application insights resource"
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "metadata": {
+        "description": "Metadata for this resource"
+      }
+    },
+    "webSiteName": {
+      "type": "string",
+      "minLength": 2,
+      "metadata": {
+        "description": "Full name of the webapplication"
+      }
+    }
+  },
+  "variables": {
+    "webSiteName": "[parameters('websitename')]",
+    "applicationInsightsName": "[parameters('applicationInsightsName')]"
+  },
+  "resources": [   
+    {
+      "apiVersion": "2014-04-01",
+      "name": "[variables('applicationInsightsName')]",
+      "type": "Microsoft.Insights/components",
+      "location": "[resourceGroup().location]",
+      "tags": {        
+        "department": "[parameters('metadata').department]",
+        "projectName": "[parameters('metadata').projectName]",
+        "owner": "[parameters('metadata').owner]",
+        "environment": "[parameters('metadata').environment]"
+      },
+      "properties": {
+        "applicationId": "[variables('webSiteName')]"
+      }
+    }
+  ],
+  "outputs": {
+    "applicationInsightsInstrumentationKey": {
+      "value": "[reference(resourceId('Microsoft.Insights/components', variables('applicationInsightsName')), '2014-04-01').InstrumentationKey]",
+      "type": "string"
+    }
+  }
+}

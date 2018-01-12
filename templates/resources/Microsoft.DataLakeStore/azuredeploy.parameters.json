@@ -1,0 +1,21 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "datalakeName": {
+            "value": "mydatalake"
+        },
+        "metadata": {
+            "value": {
+                "department": "IT",
+                "company": "Xpirit",
+                "projectName": "epicshit",
+                "owner": "pnaber@xpirit.com",
+                "environment": "dev"
+            }
+        },
+        "servicePrincipalObjectId": {
+            "value": "123456-7efa-4523-9736-123456789012"
+        }
+    }
+}

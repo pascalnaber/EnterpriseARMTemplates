@@ -1,0 +1,236 @@
+﻿{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "hostingPlanName": {
+      "type": "string",
+      "minLength": 1,
+      "metadata": {
+        "description": "Full name of the hostingplan"
+      }
+    },
+    "webSiteName": {
+      "type": "string",
+      "minLength": 2,
+      "metadata": {
+        "description": "Full name of the website"
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "metadata": {
+        "description": "Metadata for this resource"
+      }
+    },
+    "domainName": {
+      "type": "string",
+      "minLength": 2,
+      "metadata": {
+        "description": "Name of the domainname"
+      }
+    },
+    "connectionStrings": {
+      "type": "object",
+      "defaultValue": {},
+      "metadata": {
+        "description": "Connectionstrings for the webapp"
+      }
+    },
+    "appSettings": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "AppSettings for the webapp"
+      }
+    },
+    "skuName": {
+      "type": "string",
+      "defaultValue": "B1",
+      "allowedValues": [
+        "F1",
+        "D1",
+        "B1",
+        "B2",
+        "B3",
+        "S1",
+        "S2",
+        "S3",
+        "P1",
+        "P2",
+        "P3",
+        "P4"
+      ],
+      "metadata": {
+        "description": "Describes plan's pricing tier and instance size. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
+      }
+    },
+    "skuCapacity": {
+      "type": "int",
+      "defaultValue": 1,
+      "minValue": 1,
+      "metadata": {
+        "description": "Describes plan's instance count"
+      }
+    },
+    "alwaysOn": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "webSocketsEnabled": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "arrAffinityEnabled": {
+      "type": "bool",
+      "defaultValue": false
+    }
+  },
+  "variables": {
+    "hostingPlanName": "[parameters('hostingPlanName')]",
+    "webSiteName": "[parameters('webSiteName')]",    
+    "wwwHostName": "[concat('www.', parameters('domainName'))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[variables('hostingPlanName')]",
+      "type": "Microsoft.Web/serverfarms",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "Hosting plan",
+        "department": "[parameters('metadata').department]",
+        "projectName": "[parameters('metadata').projectName]",
+        "owner": "[parameters('metadata').owner]",
+        "environment": "[parameters('metadata').environment]"
+      },
+      "sku": {
+        "name": "[parameters('skuName')]",
+        "capacity": "[parameters('skuCapacity')]"
+      },
+      "properties": {
+        "name": "[variables('hostingPlanName')]"
+      }
+    },
+    //,
+    //{
+    //  "type": "Microsoft.Web/sites/hostnameBindings",
+    //  "name": "[concat(parameters('webSiteName'), concat('/', variables('wwwHostName')))]",
+    //  "apiVersion": "2015-04-01",
+    //  "location": "[resourceGroup().location]",
+    //  "dependsOn": [
+    //    "[concat('Microsoft.Web/sites/', parameters('webSiteName'))]"
+    //  ],
+    //  "properties": {
+    //    "siteName": "parameters('webSiteName')",
+    //    "azureResourceType": "Website",
+    //    "hostNameType": "Verified"
+    //  }
+    //},
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[variables('webSiteName')]",
+      "type": "Microsoft.Web/sites",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "Web app",
+        "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('hostingPlanName'))]": "Resource",
+        "department": "[parameters('metadata').department]",
+        "projectName": "[parameters('metadata').projectName]",
+        "owner": "[parameters('metadata').owner]",
+        "environment": "[parameters('metadata').environment]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]"
+      ],
+      "properties": {
+        "name": "[variables('webSiteName')]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+        "siteConfig": {
+          "phpVersion": "Off",
+          "use32BitWorkerProcess": false,
+          "AlwaysOn": "[parameters('alwaysOn')]",
+          "webSocketsEnabled": "[parameters('webSocketsEnabled')]",
+          "clientAffinityEnabled": "[parameters('arrAffinityEnabled')]",
+          "appSettings": "[parameters('appsettings')]"
+        }
+      },
+      "resources": [
+        {
+          "name": "connectionstrings",
+          "type": "config",
+          "apiVersion": "2015-08-01",
+          "dependsOn": [
+            "[concat('Microsoft.Web/sites/', variables('webSiteName'))]"
+          ],
+
+          "tags": {
+
+          },
+          "properties": "[parameters('connectionStrings')]"
+        }
+            ,
+          {
+            "apiVersion": "2015-08-01",
+            "name": "[concat(variables('webSiteName'), '-staging')]",
+            "type": "slots",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+              "[resourceId('Microsoft.Web/Sites', variables('webSiteName'))]"
+            ],
+            "properties": {}
+          }
+      ]
+    },
+    {
+      "apiVersion": "2014-04-01",
+      "name": "[concat(variables('hostingPlanName'), '-', resourceGroup().name)]",
+      "type": "Microsoft.Insights/autoscalesettings",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "Auto scale settings",
+        "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('hostingPlanName'))]": "Resource",
+        "department": "[parameters('metadata').department]",
+        "projectName": "[parameters('metadata').projectName]",
+        "owner": "[parameters('metadata').owner]",
+        "environment": "[parameters('metadata').environment]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]"
+      ],
+      "properties": {
+        "profiles": [
+          {
+            "name": "Default",
+            "capacity": {
+              "minimum": 1,
+              "maximum": 2,
+              "default": 1
+            },
+            "rules": []
+          }
+        ],
+        "enabled": false,
+        "name": "[concat(variables('hostingPlanName'), '-', resourceGroup().name)]",
+        "targetResourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('hostingPlanName'))]"
+      }
+    }
+  ],
+  "outputs": {
+    "websiteName": {
+      "value": "[variables('webSiteName')]",
+      "type": "string"
+    },
+    "websiteUrl": {
+      "value": "[concat('http://', variables('webSiteName'), '.azurewebsites.net')]",
+      "type": "string"
+    },
+    "secureWebsiteUrl": {
+      "value": "[concat('https://', variables('webSiteName'), '.azurewebsites.net')]",
+      "type": "string"
+    },
+    "hostingPlanName": {
+      "value": "[variables('hostingPlanName')]",
+      "type": "string"
+    }
+  }
+}

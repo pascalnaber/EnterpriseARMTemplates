@@ -1,0 +1,44 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "datalakeName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the datalake. (no dashes allowed)"
+            }
+        },
+        "metadata": {
+            "type": "object",
+            "metadata": {
+                "description": "Metadata for this resource"
+            }
+        },
+        "servicePrincipalObjectId": {
+            "type": "string",
+            "metadata": {
+                "description": "The AAD object ID (guid) of the service principal that represents the HDInsight cluster. (Not application/clientID). The service principal will be given permissions on the root folder of the Data Lake Store account."
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.DataLakeStore/accounts",
+            "tags": {
+                "department": "[parameters('metadata').department]",
+                "projectName": "[parameters('metadata').projectName]",
+                "owner": "[parameters('metadata').owner]",
+                "environment": "[parameters('metadata').environment]"
+            },
+            "name": "[parameters('datalakeName')]",
+            "apiVersion": "2016-11-01",
+            "location": "[resourcegroup().location]",
+            "scale": null,
+            "properties": {
+                "initialUser": "[parameters('servicePrincipalObjectId')]"
+            },
+            "dependsOn": []
+        }
+    ]
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+   
+    "eventHubName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Event Hub"
+      }
+    },
+    "consumerGroupName": {
+      "type": "string",
+      "defaultValue": "$Default",
+      "metadata": {
+        "description": "Name of the Consumer Group"
+      }
+    }
+  },
+  "variables": {
+    
+   
+  },
+  "resources": [
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[parameters('consumerGroupName')]",
+      "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",  
+      "location": "[resourcegroup().location]",
+      "properties": {}
+    }
+  ],
+  "outputs": {
+    
+  }
+}

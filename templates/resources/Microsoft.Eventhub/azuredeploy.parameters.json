@@ -1,0 +1,33 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "namespaceName": {
+      "value": "mynamespace7890"
+    },
+    "metadata": {
+      "value": {
+        "department": "IT",
+        "company": "Xpirit",
+        "projectName": "epicshit",
+        "owner": "pnaber@xpirit.com",
+        "environment": "dev"
+      }
+    },
+    "eventHubName": {
+      "value": "myeventhub"
+    },
+    "consumerGroupName": {
+      "value": "$Default"
+    },
+    "sku": {
+      "value": "Standard"
+    },
+    "partitionCount": {
+      "value": 4
+    },
+    "messageRetentionInDays": {
+      "value": 1
+    }
+  }
+}

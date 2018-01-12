@@ -1,0 +1,130 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "keyVaultName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Key Vault"
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "metadata": {
+        "description": "Metadata for this resource"
+      }
+    },
+    "objectIdsForPermission": {
+      "type": "array",
+      "metadata": {
+        "description": "The AAD object ID (guid) of the User or serviceprincipal (Not application/clientid) (in PS: Get-AzureRmADUser, Get-AzureRmADServicePrincipal). All users get All access."
+      }
+    },
+    "secrets": {
+      "type": "array",
+      "metadata": {
+        "description": "Array of secrets with name and secret property"
+      }
+    },
+    "sku": {
+      "type": "string",
+      "defaultValue": "Standard",
+      "allowedValues": [
+        "Standard",
+        "standard",
+        "Premium",
+        "premium"
+      ],
+      "metadata": {
+        "description": "SKU for the vault"
+      }
+    },
+    "enabledForDeployment": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "enabledForDeployment"
+      }
+    },
+    "enabledForTemplateDeployment": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "enabledForTemplateDeployment"
+      }
+    },
+    "enabledForVolumeEncryption": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "enabledForVolumeEncryption"
+      }
+    }
+  },
+  "variables": {
+    "numberOfObjectIdsForPermission": "[length(parameters('objectIdsForPermission'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "name": "[parameters('keyVaultName')]",
+      "apiVersion": "2015-06-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "department": "[parameters('metadata').department]",
+        "projectName": "[parameters('metadata').projectName]",
+        "owner": "[parameters('metadata').owner]",
+        "environment": "[parameters('metadata').environment]"
+      },
+      "properties": {
+        "enabledForDeployment": "[parameters('enabledForDeployment')]",
+        "enabledForTemplateDeployment": "[parameters('enabledForTemplateDeployment')]",
+        "enabledForVolumeEncryption": "[parameters('enabledForVolumeEncryption')]",
+        "tenantId": "[subscription().tenantId]",
+        "sku": {
+          "name": "[parameters('sku')]",
+          "family": "A"
+        },
+        "copy": [
+          {
+            "name": "accessPolicies",
+            "count": "[variables('numberOfObjectIdsForPermission')]",
+            "input": {
+              "tenantId": "[subscription().tenantId]",
+              "objectId": "[parameters('objectIdsForPermission')[copyIndex('accessPolicies')]]",
+              "permissions": {
+                "keys": [
+                  "all"
+                ],
+                "secrets": [
+                  "all"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "name": "[concat(parameters('keyVaultName'), '/', parameters('secrets')[copyIndex()].name)]",
+      "apiVersion": "2015-06-01",
+      "properties": {
+        "value": "[parameters('secrets')[copyIndex()].secret]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ],
+      "copy": {
+        "name": "secretcopy",
+        "count": "[length(parameters('secrets'))]"
+      }
+    }
+  ],
+  "outputs": {
+    "keyVaultName": {
+      "type": "string",
+      "value": "[parameters('keyVaultName')]"
+    }
+  }
+}

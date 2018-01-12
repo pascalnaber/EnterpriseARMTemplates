@@ -1,0 +1,48 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "databaseName": {
+      "value": "mydatabase"
+    },
+    "metadata": {
+      "value": {
+        "department": "IT",
+        "company": "Xpirit",
+        "projectName": "epicshit",
+        "owner": "pnaber@xpirit.com",
+        "environment": "dev"
+      }
+    },
+    "administratorLogin": {
+      "value": "sqluser"
+    },
+    "administratorLoginPassword": {
+      "value": "P@$$w0rd"
+    },
+    "databaseDTU": {
+      "value": 100
+    },
+    "databaseSkuName": {
+      "value": "PostgreSQLB100"
+    },
+    "databaseSkuTier": {
+      "value": "Standard"
+    },
+    "databaseSkuSizeMB": {
+      "value": 128000
+    },
+    "firewallRules": {
+      "value": [
+        {
+          "name": "myip",
+          "ipAddress": "127.0.0.0"
+        },
+        {
+          "name": "myotherip",
+          "ipAddress": "127.0.0.1"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,83 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "registryName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the registry service"
+            }
+        }, 
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the storage account"
+            }
+        },
+        "metadata": {
+            "type": "object",
+            "metadata": {
+              "description": "Metadata for this resource"
+            }
+        },  
+        "storageAccountType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "metadata": {
+                "description": "Type of the storage account"
+            }
+        },
+        "adminUserEnabled": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable admin user"
+            }
+        }
+    },
+    "resources": [
+        {
+            "name": "[parameters('storageAccountName')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2016-01-01",
+            "tags": {
+                "containerregistry": "[parameters('registryName')]",
+                "department": "[parameters('metadata').department]",
+                "projectName": "[parameters('metadata').projectName]",
+                "owner": "[parameters('metadata').owner]",
+                "environment": "[parameters('metadata').environment]"
+            },
+            "sku": {
+                "name": "[parameters('storageAccountType')]"
+            },
+            "kind": "Storage",
+            "properties": {
+                "encryption": {
+                    "services": {
+                        "blob": {
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                }
+            }
+        },
+        {
+            "name": "[parameters('registryName')]",
+            "type": "Microsoft.ContainerRegistry/registries",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2016-06-27-preview",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+            ],
+          "properties": {
+            "adminUserEnabled": "[parameters('adminUserEnabled')]",
+            "storageAccount": {
+              "name": "[parameters('storageAccountName')]",
+              "accessKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2016-12-01').keys[0].value]"
+            }
+          }
+        }
+    ]
+}

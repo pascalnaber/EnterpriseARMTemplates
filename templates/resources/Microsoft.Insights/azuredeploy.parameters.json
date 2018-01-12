@@ -1,0 +1,21 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "applicationInsightsName": {
+      "value": "myappinsight"
+    },
+    "metadata": {
+      "value": {
+        "department": "IT",
+        "company": "Xpirit",
+        "projectName": "epicshit",
+        "owner": "pnaber@xpirit.com",
+        "environment": "dev"
+      }
+    },
+    "webSiteName": {
+      "value": "mywebsite"
+    }   
+  }
+}

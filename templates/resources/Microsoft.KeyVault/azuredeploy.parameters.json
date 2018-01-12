@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "keyVaultName": {
+      "value": "mykeyvault"
+    },    
+    "metadata": {
+      "value": {
+        "department": "IT",
+        "company": "Xpirit",
+        "projectName": "epicshit",
+        "owner": "pnaber@xpirit.com",
+        "environment": "dev"
+      }
+    },
+    "objectIdsForPermission": {
+      "value": [
+        "123456-7efa-4523-9736-123456789012", 
+        "987654-a705-4c97-a56d-987654321098"       
+      ]
+    },
+    "secrets":{
+      "value":[
+        {
+          "name": "secretnameA",
+          "secret": "secretValueA"
+        },
+        {
+          "name": "secretnameB",
+          "secret": "secretValueB"
+        }        
+      ]
+    }
+  }
+}

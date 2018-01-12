@@ -1,0 +1,50 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "companyName": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 4,
+      "metadata": {
+        "description": "Abbrevation of the company like: mlk"
+      }
+    },
+    "projectName": {
+      "type": "string",
+      "minLength": 2,
+      "metadata": {
+        "description": "Short description of the project"
+      }
+    },
+    "environment": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 3,
+      "metadata": {
+        "description": "Abbrevation of the environment in 3 characters. (eg: dev for Development)"
+      }
+    }
+  },
+  "variables": {
+    "shortlocation": "[replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(resourceGroup().location, 'eastasia', 'ea'), 'southeastasia', 'sea'), 'centralus', 'cu'), 'eastus', 'eu'), 'eastus2', 'eu2'), 'westus', 'wu'), 'northcentralus', 'ncu'), 'southcentralus', 'scu'),'northeurope','ne'), 'westeurope', 'we'), 'japanwest', 'jw'), 'japaneast', 'je'), 'brazilsouth', 'bs'), 'australiaeast', 'ae'), 'australiasoutheast', 'ase'), 'canadacentral', 'cc'), 'canadaeast', 'ce'), 'uksouth', 'us'), 'ukwest', 'uw'), 'westcentralus', 'wcu'), 'westus2', 'wu2')]",
+    "defaultName": "[concat(parameters('companyName'), '-', parameters('projectName'),'-{resourceType}-', parameters('environment'), '-', variables('shortlocation'))]",
+    "storageName": "[replace(variables('defaultName'), '-', '')]"
+  },
+  "resources": [
+    
+  ],
+  "outputs": {
+    "defaultConvention": {
+      "type": "string",
+      "value": "[variables('defaultName')]"
+    },
+    "storageConvention": {
+      "type": "string",
+      "value": "[variables('storageName')]"
+    }
+  }
+}
+
+  
+

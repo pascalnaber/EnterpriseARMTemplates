@@ -1,0 +1,26 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+     "iotHubName": {
+      "value": "myiothub"
+    },
+    "metadata": {
+      "value": {
+        "department": "IT",
+        "company": "Xpirit",
+        "projectName": "epicshit",
+        "owner": "pnaber@xpirit.com",
+        "environment": "dev"
+      }
+    },
+    "eventHubs": {
+      "value": {
+        "telemetry": "Endpoint=sb://MYEVENTHUB.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=MYPASSWORD;EntityPath=telemetry"
+      }
+    },   
+    "skuName":{
+      "value": "S1"
+    }
+  }
+}

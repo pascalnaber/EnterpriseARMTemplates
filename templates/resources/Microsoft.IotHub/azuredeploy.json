@@ -1,0 +1,241 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "iotHubName": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object",
+      "metadata": {
+        "description": "Metadata for this resource"
+      }
+    },
+    "eventHubs": {
+      "type": "object",
+      "metadata": {
+        "description": "EventHubs"
+      }
+    },
+    "endpointIds": {
+      "type": "object",
+      "metadata": {
+        "description": "EventHubs"
+      }
+    },
+    "skuName": {
+      "type": "string",
+      "allowedValues": [
+        "F1",
+        "S1",
+        "S2",
+        "S3"
+      ],
+      "defaultValue": "F1",
+      "metadata": {
+        "description": "One of the supported SKUs: F1, S1, S2 or S3"
+      }
+    },
+    "capacityUnits": {
+      "type": "int",
+      "minValue": 1,
+      "defaultValue": 1,
+      "metadata": {
+        "description": "Number of desired IoT Hub units. F1 [1-1] : S1, S2 [1-200] : S3 [1-10]."
+      }
+    },
+    "d2cMessageRetentionInDaysPeriod": {
+      "type": "int",
+      "minValue": 1,
+      "maxValue": 7,
+      "defaultValue": 1,
+      "metadata": {
+        "description": "Retention time in days for device-to-cloud messages. [For F1: 1-1, S1: 1-7, S2: 1-7, S3: 1-7]."
+      }
+    },
+    "d2cPartitionCount": {
+      "type": "int",
+      "minValue": 2,
+      "defaultValue": 2,
+      "maxValue": 32,
+      "metadata": {
+        "description": "Number of partitions for device-to-cloud messages. [For F1: 2-2, S1: 2-128, S2: 2-128, S3: 2-128]."
+      }
+    },
+    "c2dMessagesTTLAsIso8601": {
+      "type": "string",
+      "defaultValue": "PT1H",
+      "metadata": {
+        "description": "Default TTL in ISO_8601 format for cloud-to-device messages. The value can range from PT1M to PT2D (or any other format as per ISO_8601 standards for duration)."
+      }
+    },
+    "c2dMessagesMaxDeliveryCount": {
+      "type": "int",
+      "minValue": 1,
+      "maxValue": 100,
+      "defaultValue": 10,
+      "metadata": {
+        "description": "Maximum delivery count for cloud-to-device messages per-device queues."
+      }
+    },
+    "c2dFeebackMessagesTTLAsIso8601": {
+      "type": "string",
+      "defaultValue": "PT1H",
+      "metadata": {
+        "description": "TTL in ISO_8601 format for service-bound feedback messages. The value can range from PT1M to PT2D (or any other format as per ISO_8601 standards for duration)."
+      }
+    },
+    "c2dFeedbackMessagesMaxDeliveryCount": {
+      "type": "int",
+      "minValue": 1,
+      "maxValue": 100,
+      "defaultValue": 10,
+      "metadata": {
+        "description": "Maximum delivery count for feedback queue."
+      }
+    },
+    "c2dFeedbackMessagesLockDurationAsIso8601": {
+      "type": "string",
+      "defaultValue": "PT60S",
+      "metadata": {
+        "description": "Lock duration in ISO_8601 format for service-bound feedback messages. The value can range from PT5S to PT300S (or any other format as per ISO_8601 standards for duration)."
+      }
+    }
+  },
+  "variables": {
+    "iotHubName": "[parameters('iotHubName')]",
+    "iotHubResourceId": "[resourceId('Microsoft.Devices/Iothubs', variables('iotHubName'))]",
+    "registryReadWriteKeyName": "registryReadWrite",
+    "registryReadWriteResourceId": "[resourceId('Microsoft.Devices/IotHubs/Iothubkeys', variables('iotHubName'), variables('registryReadWriteKeyName'))]",
+    "iotHubOwnerKeyName": "iothubowner",
+    "iothubOwnerResourceId": "[resourceId('Microsoft.Devices/IotHubs/Iothubkeys', variables('iotHubName'), variables('iotHubOwnerKeyName'))]",
+    "serviceKeyName": "service",
+    "serviceResourceId": "[resourceId('Microsoft.Devices/IotHubs/Iothubkeys', variables('iotHubName'), variables('serviceKeyName'))]",
+    "deviceKeyName": "device",
+    "deviceResourceId": "[resourceId('Microsoft.Devices/IotHubs/Iothubkeys', variables('iotHubName'), variables('deviceKeyName'))]",
+    "registryKeyName": "registryRead",
+    "registryResourceId": "[resourceId('Microsoft.Devices/IotHubs/Iothubkeys', variables('iotHubName'), variables('registryKeyName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Devices/IotHubs",
+      "sku": {
+        "name": "[parameters('skuName')]",
+        "capacity": "[parameters('capacityUnits')]"
+      },
+      "name": "[variables('iotHubName')]",
+      "apiVersion": "2016-02-03",
+      "location": "[resourcegroup().location]",
+      "tags": {},
+      "properties": {
+        "ipFilterRules": [],
+        "eventHubEndpoints": {
+          "events": {
+            "retentionTimeInDays": "[parameters('d2cMessageRetentionInDaysPeriod')]",
+            "partitionCount": "[parameters('d2cPartitionCount')]"
+          },
+          "operationsMonitoringEvents": {
+            "retentionTimeInDays": "[parameters('d2cMessageRetentionInDaysPeriod')]",
+            "partitionCount": "[parameters('d2cPartitionCount')]"
+          }
+        },
+        "routing": {
+          "endpoints": {
+            "serviceBusQueues": [],
+            "serviceBusTopics": [],
+            "eventHubs": [
+              {
+                "id": "[parameters('endpointIds').telemetry]",
+                "connectionString": "[parameters('eventHubs').telemetry]",
+                "name": "telemetry",
+                "resourceGroup": "[resourceGroup().name]",
+                "subscriptionId": "[subscription().subscriptionId]"
+              }
+            ]
+          },
+          "routes": [
+            {
+                "name": "telemetry",
+                "source": "DeviceMessages",
+                "condition": "MessageType=\"Variable\"",
+                "endpointNames": [
+                    "telemetry"
+                ],
+                "isEnabled": true
+            }
+          ],
+          "fallbackRoute": {
+            "name": "$fallback",
+            "source": "DeviceMessages",
+            "condition": "true",
+            "endpointNames": [
+              "events"
+            ],
+            "isEnabled": true
+          }
+        },
+        "storageEndpoints": {
+          "$default": {
+            "sasTtlAsIso8601": "PT1H",
+            "connectionString": "",
+            "containerName": ""
+          }
+        },
+        "enableFileUploadNotifications": false,
+        "cloudToDevice": {
+          "maxDeliveryCount": "[parameters('c2dMessagesMaxDeliveryCount')]",
+          "defaultTtlAsIso8601": "[parameters('c2dMessagesTTLAsIso8601')]",
+          "feedback": {
+            "lockDurationAsIso8601": "[parameters('c2dFeedbackMessagesLockDurationAsIso8601')]",
+            "ttlAsIso8601": "[parameters('c2dFeebackMessagesTTLAsIso8601')]",
+            "maxDeliveryCount": "[parameters('c2dFeedbackMessagesMaxDeliveryCount')]"
+          }
+        },
+        "operationsMonitoringProperties": {
+          "events": {
+            "None": "None",
+            "Connections": "Error, Information",
+            "DeviceTelemetry": "Error, Information",
+            "C2DCommands": "Error, Information",
+            "DeviceIdentityOperations": "Error, Information",
+            "FileUploadOperations": "Error, Information",
+            "Routes": "Error, Information"
+          }
+        },
+        "features": "None"
+      },
+      "resources": [],
+      "dependsOn": []
+    }
+  ],
+  "outputs": {
+    "iotHubKeys": {
+      "value": "[listKeys(resourceId('Microsoft.Devices/iotHubs', variables('iotHubName')), '2016-02-03')]",
+      "type": "object"
+    },
+    "registryReadWriteConnectionString": {
+      "type": "string",
+      "value": "[concat('HostName=', reference(variables('iotHubResourceId'), '2016-02-03').hostName, ';SharedAccessKeyName=', variables('registryReadWriteKeyName'), ';SharedAccessKey=', listkeys(variables('registryReadWriteResourceId'), '2016-02-03').primaryKey)]"
+    },
+    "iotHubOwnerConnectionString": {
+      "type": "string",
+      "value": "[concat('HostName=', reference(variables('iotHubResourceId'), '2016-02-03').hostName, ';SharedAccessKeyName=', variables('iotHubOwnerKeyName'), ';SharedAccessKey=', listkeys(variables('iothubOwnerResourceId'), '2016-02-03').primaryKey)]"
+    },
+    "serviceConnectionString": {
+      "type": "string",
+      "value": "[concat('HostName=', reference(variables('iotHubResourceId'), '2016-02-03').hostName, ';SharedAccessKeyName=', variables('serviceKeyName'), ';SharedAccessKey=', listkeys(variables('serviceResourceId'), '2016-02-03').primaryKey)]"
+    },
+    "deviceConnectionString": {
+      "type": "string",
+      "value": "[concat('HostName=', reference(variables('iotHubResourceId'), '2016-02-03').hostName, ';SharedAccessKeyName=', variables('deviceKeyName'), ';SharedAccessKey=', listkeys(variables('deviceResourceId'), '2016-02-03').primaryKey)]"
+    },
+    "registryConnectionString": {
+      "type": "string",
+      "value": "[concat('HostName=', reference(variables('iotHubResourceId'), '2016-02-03').hostName, ';SharedAccessKeyName=', variables('registryKeyName'), ';SharedAccessKey=', listkeys(variables('registryResourceId'), '2016-02-03').primaryKey)]"
+    },
+    "hostName": {
+      "type": "string",
+      "value": "[concat( reference(variables('iotHubResourceId'), '2016-02-03').hostName,'.azure-devices.net')]"
+    }
+  }
+}

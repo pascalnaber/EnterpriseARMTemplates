@@ -1,0 +1,45 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "serverName": {
+            "value": "myservername1234"
+        },
+        "databaseName": {
+            "value": "mydatabasename"
+        },
+        "metadata": {
+            "value": {
+                "department": "IT",
+                "company": "Xpirit",
+                "projectName": "epicshit",
+                "owner": "pnaber@xpirit.com",
+                "environment": "dev"
+            }
+        },
+        "administratorLogin": {
+            "value": "myadminaccount"
+        },
+        "administratorLoginPassword": {
+            "value": "P@ssw0rd"
+        },
+        "encryption": {
+            "value": "Enabled"
+        },
+        "edition": {
+            "value": "Standard"
+        },
+        "requestedServiceObjectiveName": {
+            "value": "S0"
+        },
+        "maxSizeBytes": {
+            "value": "1073741824"
+        },
+        "collation": {
+            "value": "SQL_Latin1_General_Cp1_CI_AS"
+        },
+        "version": {
+            "value": "12.0"
+        }
+    }
+}
