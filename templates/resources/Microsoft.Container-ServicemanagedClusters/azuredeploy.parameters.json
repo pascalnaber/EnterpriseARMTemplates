@@ -18,7 +18,7 @@
             "value": "test"
         },
         "kubernetesVersion": {
-            "value": "1.8.1"
+            "value": "1.9.6"
         },
         "linuxAdminUsername": {
             "value": "azureuser"
@@ -47,6 +47,15 @@
         },
         "agentVMSize": {
             "value": "Standard_D2_v2"
+        },
+        "maxNrOfPods":{
+            "value": 1000
+        },
+        "enableRBAC":{
+            "value": true
+        },
+        "httpApplicationRouting":{
+            "value": true
         }
     }
 }

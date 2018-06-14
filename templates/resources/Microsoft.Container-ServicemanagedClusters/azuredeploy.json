@@ -5,7 +5,7 @@
         "clusterName": {
             "type": "string",
             "metadata": {
-                "description": "The name of the Managed Cluster resource. Possible locations: eastus,westeurope,centralus,canadacentral,canadaeast"
+                "description": "The name of the Managed Cluster resource. Possible locations: australiaeast,canadacentral,canadaeast,centralus,eastus,northeurope,uksouth,westeurope,westus,westus2"
             }
         },
         "metadata": {
@@ -142,13 +142,30 @@
         },
         "kubernetesVersion": {
             "type": "string",
-            "defaultValue": "1.8.1",
-            "allowedValues": [
-                "1.7.7",
-                "1.8.1"
-            ],
+            "defaultValue": "1.9.6",            
             "metadata": {
                 "description": "The version of Kubernetes."
+            }
+        },
+        "httpApplicationRouting": {
+            "type": "bool",
+            "defaultValue": true,            
+            "metadata": {
+                "description": "boolean flag to turn on and off of http application routing"
+            }
+        },
+        "enableRBAC": {
+            "type": "bool",
+            "defaultValue": true,            
+            "metadata": {
+                "description": "Enable RBAC on the cluster"
+            }
+        },
+        "maxNrOfPods": {
+            "type": "int",
+            "defaultValue": 110,            
+            "metadata": {
+                "description": "Maximum number of pods that can run on a node."
             }
         }
     },
@@ -167,10 +184,10 @@
     },
     "resources": [
         {
-            "apiVersion": "2017-08-31",
+            "apiVersion": "2018-03-31",
             "type": "Microsoft.ContainerService/managedClusters",
-            "location": "westeurope",
-            "name": "[variables('clusterName')]",
+            "location": "[resourceGroup().location]",
+            "name": "[variables('clusterName')]",            
             "tags": {
                 "department": "[parameters('metadata').department]",
                 "projectName": "[parameters('metadata').projectName]",
@@ -187,7 +204,8 @@
                         "count": "[variables('agentCount')]",
                         "vmSize": "[variables('agentVMSize')]",
                         "osType": "[variables('osType')]",
-                        "storageProfile": "ManagedDisks"
+                        "storageProfile": "ManagedDisks",
+                        "maxPods": "[parameters('maxNrOfPods')]"
                     }
                 ],
                 "linuxProfile": {
@@ -203,7 +221,13 @@
                 "servicePrincipalProfile": {
                     "ClientId": "[parameters('servicePrincipalClientId')]",
                     "Secret": "[parameters('servicePrincipalClientSecret')]"
-                }
+                },
+                "addonProfiles": {
+                    "httpApplicationRouting": {
+                      "enabled": "[parameters('httpApplicationRouting')]"                      
+                    }
+                },
+                "enableRBAC": "[parameters('enableRBAC')]"
             }
         }
     ],
