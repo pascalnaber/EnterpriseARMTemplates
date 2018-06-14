@@ -1,0 +1,104 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {    
+    "storageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Storage account. (no dashes allowed)"
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "metadata": {
+        "description": "Metadata for this resource"
+      }
+    },    
+    "storageAccountType": {
+      "type": "string",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Standard_ZRS",
+        "Premium_LRS"
+      ],
+      "defaultValue": "Standard_LRS",
+      "metadata": {
+        "description": "Storage Account type"
+      }
+    },
+    "accessTier": {
+      "type": "string",
+      "allowedValues": [
+        "Hot",
+        "Cool"        
+      ],
+      "defaultValue": "Hot",
+      "metadata": {
+        "description": "The access tier used for billing. Access tier cannot be changed more than once every 7 days (168 hours)."
+      }
+    }
+  },
+  "variables": {    
+    "storageAccountName": "[parameters('storageAccountName')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('storageAccountName')]",
+      "apiVersion": "2018-02-01",
+      "tags": {
+        "department": "[parameters('metadata').department]",
+        "projectName": "[parameters('metadata').projectName]",
+        "owner": "[parameters('metadata').owner]",
+        "environment": "[parameters('metadata').environment]"
+      },
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "[parameters('storageAccountType')]"
+      },
+      "kind": "StorageV2",
+      "properties": { 
+        "accessTier": "[parameters('accessTier')]",       
+        "encryption": {
+          "services": {
+            "blob": {
+              "enabled": true
+            },
+            "file": {
+              "enabled": true
+            }
+          },
+          "keySource": "Microsoft.Storage"          
+          }
+        }           
+    }
+  ],
+  "outputs": {
+    "storageAccountName": {
+      "type": "string",
+      "value": "[variables('storageAccountName')]"
+    },
+    "storageAccountConnectionString": {
+      "type": "string",
+      "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listKeys(variables('storageAccountName'), '2018-02-01').keys[0].value)]"
+    },
+    "blobStorageAccountConnectionString": {
+      "type": "string",
+      "value": "[concat('BlobEndpoint=https://',variables('storageAccountName'),'.blob.core.windows.net/;TableEndpoint=https://',variables('storageAccountName'),'.table.core.windows.net/')]"
+    },
+    "queueStorageAccountConnectionString": {
+      "type": "string",
+      "value": "[concat('QueueEndpoint=https://',variables('storageAccountName'),'.queue.core.windows.net/;FileEndpoint=https://',variables('storageAccountName'),'.file.core.windows.net/')]"
+    },
+    "primaryStorageAccountKey": {
+      "type": "string",
+      "value": "[listKeys(variables('storageAccountName'), '2018-02-01').keys[0].value]"
+    },
+    "secondaryStorageAccountKey": {
+      "type": "string",
+      "value": "[listKeys(variables('storageAccountName'), '2018-02-01').keys[1].value]"
+    }
+  }
+}
